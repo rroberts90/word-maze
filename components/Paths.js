@@ -1,54 +1,54 @@
 import React, { useEffect, useRef, useState } from 'react'
 import {StyleSheet, View, Animated,Easing, useWindowDimensions} from 'react-native'
 
-import { distance, centerOnNode,rotateColors,convertToLayout, point } from '../Utils';
+import { distance, centerOnNode,rotateColors,convertToLayout, point } from '../Utils'
 
 import GlobalStyles from '../GlobalStyles'
 
-const defaultFinishColor = GlobalStyles.defaultBackground.backgroundColor;
+const defaultFinishColor = GlobalStyles.defaultBackground.backgroundColor
 
 const toDegrees = (angle) =>{
-    return angle * (180 / Math.PI);
+    return angle * (180 / Math.PI)
   }
 
 
 const calculateColor = (node, endPoint) => {
    
-    const center = centerOnNode(node.pos, node.diameter);
+    const center = centerOnNode(node.pos, node.diameter)
    
-    const hypo  = distance(endPoint.x - center.x, endPoint.y - center.y);
-    const adj = distance(endPoint.x - center.x, 0);
-    const angle = toDegrees(Math.acos(adj/ hypo));
+    const hypo  = distance(endPoint.x - center.x, endPoint.y - center.y)
+    const adj = distance(endPoint.x - center.x, 0)
+    const angle = toDegrees(Math.acos(adj/ hypo))
  
-    const xDir = Math.sign(endPoint.x - center.x);
+    const xDir = Math.sign(endPoint.x - center.x)
     const yDir = Math.sign(endPoint.y - center.y)
    
-    let color;
-    const computedColors = rotateColors(node.colors, node.rot);
+    let color
+    const computedColors = rotateColors(node.colors, node.rot)
     
     
     if(xDir == 1 &&  angle < 45) {
-      color = computedColors[1];
+      color = computedColors[1]
     }
     else if(xDir == -1 && angle < 45) {
-      color = computedColors[3];
+      color = computedColors[3]
     }
     else if( yDir == -1 && angle >= 45) {
-      color = computedColors[0];
+      color = computedColors[0]
     }
     else if(yDir == 1 && angle >= 45){
-      color = computedColors[2];
+      color = computedColors[2]
     }
     else {
-      color = "grey";
+      color = "grey"
     }
   
-    return color;
+    return color
   }
 
 const Fade = (props) => {
   
-  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const fadeAnim = useRef(new Animated.Value(1)).current
   useEffect(()=>{
     if(props.fade === true){
     Animated.timing(fadeAnim, {
@@ -57,11 +57,11 @@ const Fade = (props) => {
       useNativeDriver: true,
       easing: Easing.quad
     }).start(finished=>{
-      props.onFade();
-    });
+      props.onFade()
+    })
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[props.fadeOut]);
+  },[props.fadeOut])
   return <Animated.View style= {{opacity:fadeAnim}}>
      {props.children}
     </Animated.View>
@@ -71,22 +71,22 @@ const Fade = (props) => {
 const Segment = ({startNode,endPoint, fixedColor}) => {
 
   if (startNode === null  || endPoint === null){
-      return null;
+      return null
     }
 
-    const color = fixedColor || calculateColor(startNode, endPoint );
+    const color = fixedColor || calculateColor(startNode, endPoint )
     
-    const startPos = centerOnNode(startNode.pos,  startNode.diameter);
-    const endPos  = endPoint; 
+    const startPos = centerOnNode(startNode.pos,  startNode.diameter)
+    const endPos  = endPoint 
     
-    const scaleX = distance(endPos.x - startPos.x, endPos.y - startPos.y);
-    const scaleY = startNode.diameter / 5; // line width
+    const scaleX = distance(endPos.x - startPos.x, endPos.y - startPos.y)
+    const scaleY = startNode.diameter / 5 // line width
 
-    const opp = endPoint.y - startPos.y;
-    const xDir = Math.sign(endPoint.x - startPos.x);
-    const angle = xDir > 0 ? toDegrees(Math.asin(opp/ scaleX)) : 180 - toDegrees(Math.asin(opp/ scaleX)); // scaleX is also hypotenuse
+    const opp = endPoint.y - startPos.y
+    const xDir = Math.sign(endPoint.x - startPos.x)
+    const angle = xDir > 0 ? toDegrees(Math.asin(opp/ scaleX)) : 180 - toDegrees(Math.asin(opp/ scaleX)) // scaleX is also hypotenuse
 
-    const rotate = `${angle}deg`;
+    const rotate = `${angle}deg`
     return (<View style={[styles.dot, 
                          convertToLayout(startPos),
                         { backgroundColor: color,
@@ -100,12 +100,12 @@ const Segment = ({startNode,endPoint, fixedColor}) => {
 
 
 
-   );
+   )
 }
 
 const getFixedStyles = (startNode, endNode) => {
- const width = startNode.diameter/ 5;
- const rotatedColors = rotateColors(startNode.colors, startNode.rot);
+ const width = startNode.diameter/ 5
+ const rotatedColors = rotateColors(startNode.colors, startNode.rot)
 
   if(startNode.gridPos.row < endNode.gridPos.row){  // below
     const startPos1 = centerOnNode(startNode.pos,  startNode.diameter)
@@ -182,22 +182,22 @@ const getTransformStyles = (start , end, arrowWidth )=> {
 
 const FixedSegment = ({startNode, endNode}) => {
     
-    const fixedStyles = getFixedStyles(startNode, endNode);
+    const fixedStyles = getFixedStyles(startNode, endNode)
 
-    const isHorizontal = startNode.gridPos.row === endNode.gridPos.row ;
+    const isHorizontal = startNode.gridPos.row === endNode.gridPos.row 
 
-    fixedStyles['position'] = 'absolute';
-    fixedStyles['justifyContent'] = 'center';
-    fixedStyles['alignItems'] = 'center';
+    fixedStyles['position'] = 'absolute'
+    fixedStyles['justifyContent'] = 'center'
+    fixedStyles['alignItems'] = 'center'
 
-    const arrowWidth = startNode.diameter/5 / 1.5;
-    const transformStyles = getTransformStyles(startNode.gridPos, endNode.gridPos, arrowWidth);
+    const arrowWidth = startNode.diameter/5 / 1.5
+    const transformStyles = getTransformStyles(startNode.gridPos, endNode.gridPos, arrowWidth)
     return (<View style={[fixedStyles, {flexDirection: isHorizontal ? 'row': 'column'}]}>
       <View style={[arrowStyles(arrowWidth, arrowWidth, 'rgba(255,255,255,.5)' ), styles.lightener,{transform: transformStyles}]} />
     </View>
                              
 
-   );
+   )
 }
    
   const UserPath = ({segments, fades}) => {
@@ -212,7 +212,7 @@ const FixedSegment = ({startNode, endNode}) => {
             </Fade>
         )}
       </View>
-    );
+    )
   }
 
 const arrowStyles = (width, height, color) => {
@@ -252,14 +252,14 @@ const animateArrow = (triangleAnim, distance ,start) => {
       useNativeDriver: true
     }),
   
-  ]));
+  ]))
 }
 
 const Arrow2 = ({moveAnim, width}) => {
   return <Animated.View style={[arrowStyles(width, width, 'black'),
       {
         transform: [{ translateY: moveAnim }, { rotate: '45deg' }] 
-      }]}/>;
+      }]}/>
 }
 
 const BridgeSegment=  ({color, width, end}) => {
@@ -274,21 +274,21 @@ const BridgeSegment=  ({color, width, end}) => {
     backgroundColor: color,
     borderTopEndRadius:width
   }, positionStyles]}
-   />;
+   />
 }
 
   const CapSegment = ({end,node, won}) => {
 
-    let color;
+    let color
 
-    const fadeAnim = useRef(new Animated.Value(.65)).current;
-    const triangleAnim1 = useRef(new Animated.Value(0)).current;
-    const triangleAnim2 = useRef(new Animated.Value(0)).current;
+    const fadeAnim = useRef(new Animated.Value(.65)).current
+    const triangleAnim1 = useRef(new Animated.Value(0)).current
+    const triangleAnim2 = useRef(new Animated.Value(0)).current
 
     if(end === 'finish') {
-     color = won ? rotateColors(node.colors, node.rot)[0] : defaultFinishColor;
+     color = won ? rotateColors(node.colors, node.rot)[0] : defaultFinishColor
     }else{
-      color = node.colors[2];
+      color = node.colors[2]
     }
 
 
@@ -303,26 +303,26 @@ const BridgeSegment=  ({color, width, end}) => {
         }).start(finished=> setTimeout(()=>fadeAnim.setValue(.65),3000))
       }
       if(end==='start'){
-        fadeAnim.setValue(1);
+        fadeAnim.setValue(1)
       }
-    }, [won]);
+    }, [won])
 
-    const triangleOffset = Math.floor(node.pos.y /2);
+    const triangleOffset = Math.floor(node.pos.y /2)
 
     useEffect(()=> {
      if(won=== false && color== defaultFinishColor){
-        Animated.stagger(1500, [animateArrow(triangleAnim1, 75),animateArrow(triangleAnim2, 75) ]).start();
-        //animateArrowForever(triangleAnim1, triangleOffset);
+        Animated.stagger(1500, [animateArrow(triangleAnim1, 75),animateArrow(triangleAnim2, 75) ]).start()
+        //animateArrowForever(triangleAnim1, triangleOffset)
       }
-    },[won]);
+    },[won])
  
-    const width = end === 'start' || won ? node.diameter / 6 : node.diameter / 5;
-    const border = color==defaultFinishColor ? 2: 0;
+    const width = end === 'start' || won ? node.diameter / 6 : node.diameter / 5
+    const border = color==defaultFinishColor ? 2: 0
 
-    const left = node.pos.x + node.diameter/2 - (width/2) ;
+    const left = node.pos.x + node.diameter/2 - (width/2) 
 
 
-    const triangleWidth = node.diameter / 5 - 6;
+    const triangleWidth = node.diameter / 5 - 6
   
     return <Animated.View style={{
       backgroundColor: color,
@@ -367,7 +367,7 @@ const BridgeSegment=  ({color, width, end}) => {
       position: 'relative',
       margin:.5
         }
-  });
+  })
 
   export {Segment, UserPath, Fade, CapSegment, calculateColor}
 

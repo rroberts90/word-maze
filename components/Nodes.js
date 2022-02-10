@@ -1,25 +1,25 @@
-import { Animated, View, StyleSheet, Easing, Text, Image, ImageBackground, useWindowDimensions } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
-import { convertToLayout, point } from '../Utils';
+import { Animated, View, StyleSheet, Easing, Text, Image, ImageBackground, useWindowDimensions } from "react-native"
+import React, { useEffect, useRef, useState } from "react"
+import { convertToLayout, point } from '../Utils'
 import { Symbol, Special } from './Symbols'
 
-const Node_Width = 60;
+const Node_Width = 60
 
-import GlobalStyles from '../GlobalStyles'
+import Globals from '../Globals'
 
-const defaultNodeColor = GlobalStyles.defaultNodeColor.backgroundColor;
+const defaultNodeColor = Globals.defaultNodeColor
 
 const measure = (ref, node, afterUpdate) => {
   if (ref.current) {
     ref.current.measureInWindow((x, y, width, height) => {
       if(y > 0) {
-        node.pos = { x: x, y: y };
+        node.pos = { x: x, y: y }
       }
-      node.diameter = Math.floor(width);
+      node.diameter = Math.floor(width)
       if (afterUpdate) {
-        afterUpdate();
+        afterUpdate()
       }
-    });
+    })
 
   } else {
     throw 'measure node error'
@@ -45,7 +45,7 @@ const dynamicNodeSize = (diameter, tutorial) => {
     zIndex: 10,
     justifyContent: 'center',
     alignItems: 'center',
-  };
+  }
 }
 
 const borderSize = (diameter) => {
@@ -61,13 +61,13 @@ const dynamicNodeSizeNoPosition = (diameter) => {
     height: diameter,
     borderRadius: diameter / 2,
     borderWidth: Math.floor(diameter / 6) + .5
-  };
+  }
 }
 
 const Frozen = ({ node, rotAnim }) => {
 
-  const width = (node.diameter - node.diameter / 12 - 10) / 2;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const width = (node.diameter - node.diameter / 12 - 10) / 2
+  const fadeAnim = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
     if (node.frozen === 0) {
@@ -76,7 +76,7 @@ const Frozen = ({ node, rotAnim }) => {
         duration: 1000,
         useNativeDriver: true,
         easing: Easing.Quad
-      }).start();
+      }).start()
     }
     else if (node.frozen > 0) {
       Animated.timing(fadeAnim, {
@@ -84,9 +84,9 @@ const Frozen = ({ node, rotAnim }) => {
         duration: 1000,
         useNativeDriver: true,
         easing: Easing.Quad
-      }).start();
+      }).start()
     }
-  }, [node.frozen]);
+  }, [node.frozen])
 
   return (
     <Animated.View style={{
@@ -113,27 +113,27 @@ const Frozen = ({ node, rotAnim }) => {
 
       </View>
 
-    </Animated.View>);
+    </Animated.View>)
 }
 
 const NodeView = (props) => {
 
-  const rotAnim = useRef(new Animated.Value(0)).current;
-  const measureRef = useRef(null);
+  const rotAnim = useRef(new Animated.Value(0)).current
+  const measureRef = useRef(null)
   useEffect(() => {
 
     Animated.timing(rotAnim, {
       toValue: props.node.rot * -90,
-      duration: props.node.loaded ? 1000 : 0,
+      duration: 1000,
       useNativeDriver: true,
 
-    }).start();
+    }).start()
     
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.node.rot]);
+  }, [props.node.rot])
 
 
-  const colorStyles = borderStyles(props.node.colors);
+  const colorStyles = borderStyles(props.node.colors)
 
   return (
     <Animated.View ref={measureRef} style={[
@@ -152,9 +152,9 @@ const NodeView = (props) => {
     ]}
 
       onLayout={(event) => {
-        measure(measureRef, props.node, props.afterUpdate);
-        //props.node.pos = {x:event.nativeEvent.layout.x,y:event.nativeEvent.layout.y};
-        //console.log(`layout x: ${event.nativeEvent.layout.x}`);
+        measure(measureRef, props.node, props.afterUpdate)
+        //props.node.pos = {x:event.nativeEvent.layout.x,y:event.nativeEvent.layout.y}
+        //console.log(`layout x: ${event.nativeEvent.layout.x}`)
 
       }}
     >
@@ -168,24 +168,24 @@ const NodeView = (props) => {
       <Frozen node={props.node} rotAnim={rotAnim} />
 
     </Animated.View>
-  );
+  )
 }
 
 
 const Pulse = (props) => {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const sizeAnim = useRef(new Animated.Value(1)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current
+  const sizeAnim = useRef(new Animated.Value(1)).current
 
 
-  const colorStyles = borderStyles(props.colors);
+  const colorStyles = borderStyles(props.colors)
   useEffect(() => {
     if (props.GOGOGO > 0) {
 
-      //console.log("pulsing");
-      fadeAnim.setValue(1);
-      sizeAnim.setValue(1);
-      const scaleBy = 1.35 //props.isFinish? 1.35 :  1.35;
-      const duration = 500//props.isFinish ? 500 * (1.95 / 1.35) : 500;
+      //console.log("pulsing")
+      fadeAnim.setValue(1)
+      sizeAnim.setValue(1)
+      const scaleBy = 1.35 //props.isFinish? 1.35 :  1.35
+      const duration = 500//props.isFinish ? 500 * (1.95 / 1.35) : 500
 
       Animated.parallel([
      
@@ -207,13 +207,13 @@ const Pulse = (props) => {
       ]).start(finished => {
         if (!finished) {
           // make sure that the pulse's opacity is 0 at end
-          fadeAnim.setValue(0);
+          fadeAnim.setValue(0)
 
         }
-      });
+      })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.GOGOGO]);
+  }, [props.GOGOGO])
 
   return <Animated.View
     style={[
@@ -282,9 +282,9 @@ const styles = StyleSheet.create({
     top: '15%',
     opacity: 1,
   }
-});
+})
 
-export { NodeView, Pulse, dynamicNodeSize, dynamicNodeSizeNoPosition };
+export { NodeView, Pulse, dynamicNodeSize, dynamicNodeSizeNoPosition }
 
 //      <View style={{ alignSelf: 'flex-end', width: width - 1, height: 2, backgroundColor: 'rgb(36,36,36)', position: 'absolute', top: '55%', right: 1, borderRadius: 2 }} />
 

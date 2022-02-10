@@ -8,7 +8,7 @@ const beige = 'rgb(245,245,220)'
 
 
 
-const colorScheme9 =
+const colorScheme1 =
 {
   one: "rgba(231, 48, 110,1)", // magenta
   two: "rgba(47, 127, 183,1)", // blue
@@ -16,8 +16,9 @@ const colorScheme9 =
   four: "rgba(69, 142, 50,1)" // lime green
 }
 
-const globals =  {colorScheme: colorScheme9, 
-    defaultBackground: defaultBackground2
+const globals =  {colorScheme: colorScheme1, 
+    defaultBackground: defaultBackground2,
+    defaultNodeColor: lavenderblush
 }
 
 export default globals

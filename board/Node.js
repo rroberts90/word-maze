@@ -118,6 +118,30 @@ class Node {
     }
     return saved
   }
+  
+  loadSave(savedNode) {
+    this.gridPos = MyMath.unCompressGridPos(savedNode.g);
+  
+    this.symbol = savedNode.s || null;
+    this.colors = savedNode.c.map(rawColor=> 'rgba' + rawColor);
+    this.special = savedNode.sp || null;
+   
+
+    if(savedNode.r && savedNode.r !== 0 ){
+      throw Error('node saved with rotation');
+    }
+    this.rot = savedNode.r || 0;
+    
+    this.direction = savedNode.d || -1;
+    this.fixed = savedNode.f || false;
+   
+    this.pos = MyMath.point(0,0);
+    
+    this.links = savedNode.l.map(link=> MyMath.unCompressGridPos(link));
+
+  }
+
+
   freezeLinks(){ 
     this.links.forEach(linkedNode =>{
         if(linkedNode.symbol === this.symbol){

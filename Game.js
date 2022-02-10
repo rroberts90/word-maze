@@ -11,6 +11,7 @@ import Header from './components/Header'
 import useSound from './custom-hooks/UseSound'
 
 import GlobalStyles from './GlobalStyles'
+import buildBoard from './board-maker/boardBuilder'
 
 const Duration = 1500
 
@@ -19,35 +20,36 @@ const Game = ({ navigation, route }) => {
 
  //console.log = function() {}
  const gameType = route.name
-  const {  level, 
-    puzzle, 
-    title, } = route.params
+ 
+  const {  gameId } = route.params
 
   const height = useWindowDimensions().height
 
   const undoEl = useRef(null)
   const restartEl = useRef(null)
   const hintEl = useRef(null)
+  const board = useRef(null)
 
   const [saveLoaded, setSaveLoaded] = useState(false)
 
   const {play} = useSound()
-  const getBoard = (ref) => {
+  
+  const getBoard = () => {
 
-    if (ref.current === null) {
-      ref.current = new Board(gameType, 0, null, boardSize, {puzzleNumber, initialProgress,theme})
+    if (board.current === null) {
+      //board.current = new Board({gameType,gameId});
+      // for testing
+      board.current = buildBoard([], 1);
     }
 
-    return ref.current
+    return board.current
 
   }
-
-  const board0 = useRef(null)
 
   useEffect(() => {
 
     console.log('---------\nnew game')
-    getBoard(board0)
+    getBoard()
 
   }, [])
 

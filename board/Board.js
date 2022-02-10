@@ -1,6 +1,5 @@
 
-import {gridPos, randInt,rotateColors, point, compressGridPos} from '../Utils.js'
-import setupGrid from '../board-maker/BoardBuilder.js'
+import {gridPos, randInt, point, compressGridPos} from '../Utils.js'
 
 import Globals from '../Globals'
 import Node from './Node.js'
@@ -11,7 +10,7 @@ const getColors = (colorSet) => {
   return Object.entries(colorSet).map((arr)=> arr[1])
 }
 
-const setupGridFlex = (numRow, numCol) =>{ 
+const createEmptyGrid = (numRow, numCol) =>{ 
     const grid = [] 
     let x
     let y
@@ -38,12 +37,7 @@ const isInBounds = (gridPos, numRow, numCol) => {
 }
 
 
-const setStart = (grid,numRow,numCol) =>{ 
 
-        const randGridPos = gridPos(numRow-1,randInt(0,numCol))
-        return grid[randGridPos.row][randGridPos.col]
-
-}
 
 
 // returns a 2d array. 
@@ -67,40 +61,18 @@ const getAllNeighbors = (numRow, numCol)  => {
 
   class Board {
 
-    constructor (seedWords,criteria) {
-
-      if(false) {
-        this.numRow = 7
-        this.numCol = 5
+    constructor(boardData) {
+      if (boardData) {
+        this.loadSave(boardData);
       }else{
-        this.numRow = 6
-        this.numCol = 4
+        this.grid = createEmptyGrid(4,6);
+        this.visitedNodes = [];
+        this.words = [];
+        this.solutions = [];
+        this.setupNeighbors(this.grid.length, this.grid[0].length);
+
       }
 
-        this.setupGridFromScratch(criteria, prevBoard)
-      
-
-    }
-
-
-    setupGridFromScratch(criteria){
-
-        
-        this.grid = setupGridFlex(this.numRow,this.numCol)
-
-        this.start = setStart(this.grid, this.numRow, this.numCol)
-          
-      
-        this.setupNeighbors(this.numRow, this.numCol)
-
-        const finish = gridPos(0,randInt(0,this.numCol))
-        this.finish =  this.grid[finish.row][finish.col]
-        
-        this.start.fixed = true
-        this.visitedNodes = [this.start] 
-        this.score = 0
-
-        setupGrid(this, criteria)
     }
     
     setupNeighbors(numRow, numCol){
@@ -151,6 +123,23 @@ const getAllNeighbors = (numRow, numCol)  => {
       }
     }
     
+    connect(nextNode, visitedNodes) { // core logic to rotate nodes. 
+      this.visitedNodes = [...this.visitedNodes, nextNode]
+      nextNode.fixed = true 
+
+      if(!nextNode.special || nextNode.special==='booster') {
+        nextNode.rotateLinked()
+      } else if (nextNode.special === 'freezer'){
+        nextNode.freezeLinks()
+
+      } else if (nextNode.special === 'rotateCC') {
+        this.grid.forEach((row) => row.forEach(node => {
+          node.direction = 1
+      }))
+                nextNode.rotateLinked()
+      }
+    }
+
     visitNode(nextNode) {
       const curr = this.visitedNodes[this.visitedNodes.length-1]
       if(curr === nextNode) {//can't visit myself
@@ -159,20 +148,7 @@ const getAllNeighbors = (numRow, numCol)  => {
       }
       if(this.isPathOpen(curr, nextNode)) {
 
-        this.visitedNodes = [...this.visitedNodes, nextNode]
-        nextNode.fixed = true 
-
-        if(!nextNode.special || nextNode.special==='booster') {
-          nextNode.rotateLinked()
-        } else if (nextNode.special === 'freezer'){
-          nextNode.freezeLinks()
-
-        } else if (nextNode.special === 'rotateCC') {
-          this.grid.forEach((row) => row.forEach(node => {
-            node.direction = 1
-        }))
-                  nextNode.rotateLinked()
-        }
+        this.connect(nextNode);
         return {next: nextNode, prev: null}
       } 
       else {
@@ -278,15 +254,15 @@ const getAllNeighbors = (numRow, numCol)  => {
       }
 
     }
-    async loadSave(savedBoard, puzzleInfo, prevBoard) {
+    async loadSave(savedBoard) {
 
       this.grid = savedBoard.grid.map(row => row.map(savedNode => {
         return null;
       }));
+
       this.grid = savedBoard.grid.map(row => row.map(savedNode => {
         const node = new Node(); //  load save fills  empty node
         node.loadSave(savedNode);
-        node.theme = puzzleInfo.theme;
         return node;
       }));
   
@@ -301,32 +277,18 @@ const getAllNeighbors = (numRow, numCol)  => {
   
       this.start = this.getNodeFromGridPos(savedBoard.start);
       this.finish = this.getNodeFromGridPos(savedBoard.finish);
+
       this.visitedNodes = savedBoard.visitedNodes.map(rawGridPos => this.getNodeFromGridPos(MyMath.unCompressGridPos(rawGridPos)));
       this.solution = savedBoard.solution.map(rawGridPos => this.getNodeFromGridPos(MyMath.unCompressGridPos(rawGridPos)));
-  
-      this.puzzleNumber = puzzleInfo.puzzleNumber;
       
-      const levelProgress = await getItem('levelProgress');
-      if(levelProgress && !prevBoard) {
-        // check if there a visited nodes saved
-        const puzzleProgress = levelProgress[puzzleInfo.puzzleNumber-1];
-        if(puzzleProgress.visitedNodes && puzzleProgress.visitedNodes.length > 0){ 
-          // visited nodes are saved as just grid pos objects
-          const alreadyVisited = puzzleProgress.visitedNodes.map(gridPos => this.getNodeFromGridPos(gridPos));
-          alreadyVisited.shift();        // remove duplicate first node .
-  
-          // visit all this nodes
-          alreadyVisited.forEach(node=> this.visitNode(node));
-  
-        }
-      }
-  
     }
   
   
-     saveVisitedNodes (){ // saves visited Nodes in local storage
+     saveVisitedNodes (){ 
+       //rewrite because the old way caused rendering bugs
+       // saves visited Nodes in local storage
       
-         console.log(`saveVisitedNodes: ${this.visitedNodes.length}`);
+         /*console.log(`saveVisitedNodes: ${this.visitedNodes.length}`);
         getItem('levelProgress').then(levelProgress=> {
           
           const updatedProgress = levelProgress.map(level=> level);
@@ -335,8 +297,9 @@ const getAllNeighbors = (numRow, numCol)  => {
           storeItem('levelProgress',updatedProgress);
     
         });
-      
+      */
     }
+    
     getNodeFromGridPos(gridPos) {
       return this.grid[gridPos.row][gridPos.col]
     }

@@ -53,8 +53,7 @@ const IconButton = ({ navigation, title, disabled, toggleDisabled, borderColor, 
     )
 }
 
-const BackButton = ({ navigation, overrideDestination, board, time }) => {
-
+const BackButton = ({ navigation,  board }) => {
 
     return (
 
@@ -65,7 +64,7 @@ const BackButton = ({ navigation, overrideDestination, board, time }) => {
                     board.current.saveVisitedNodes(time)
 
                 }
-                overrideDestination ? navigation.navigate(overrideDestination, { updateProgress: true }) : navigation.navigate('colormaze')
+                navigation.navigate('word-maze')
             }}
         >
             <Image style={{ height: '100%', width: '100%', opacity: .7 }} source={require('../Icons/backArrow2.png')} />
