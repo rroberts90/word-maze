@@ -178,6 +178,9 @@ const getTransformStyles = (start , end, arrowWidth )=> {
   }
 }
 
+//      <View style={[arrowStyles(arrowWidth, arrowWidth, 'rgba(255,255,255,.5)' ), styles.lightener,{transform: transformStyles}]} />
+//    const transformStyles = getTransformStyles(startNode.gridPos, endNode.gridPos, arrowWidth)
+
 const FixedSegment = ({startNode, endNode}) => {
     
     const fixedStyles = getFixedStyles(startNode, endNode)
@@ -185,16 +188,11 @@ const FixedSegment = ({startNode, endNode}) => {
     const isHorizontal = startNode.gridPos.row === endNode.gridPos.row 
 
     fixedStyles['position'] = 'absolute'
-    fixedStyles['justifyContent'] = 'center'
-    fixedStyles['alignItems'] = 'center'
 
     const arrowWidth = startNode.diameter/5 / 1.5
-    const transformStyles = getTransformStyles(startNode.gridPos, endNode.gridPos, arrowWidth)
-    return (<View style={[fixedStyles, {flexDirection: isHorizontal ? 'row': 'column'}]}>
-      <View style={[arrowStyles(arrowWidth, arrowWidth, 'rgba(255,255,255,.5)' ), styles.lightener,{transform: transformStyles}]} />
+    return (<View style={[fixedStyles]}>
     </View>
                              
-
    )
 }
    

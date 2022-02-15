@@ -10,7 +10,26 @@ class WordPackError extends Error {
     }
 }
 
-const addLinks = (board, alphabetDict) => {
+const addLinks = (board) => {
+  
+    const { alphabet } = createAlphabet()
+
+    const alphabetDict = {}
+    alphabet.forEach(letter => alphabetDict[letter] = [])
+
+
+    // first pass fill frequency dict
+    for (let i = 0; i < board.grid.length; i++) {
+        for (let j = 0; j < board.grid[0].length; j++) {
+            const node = board.grid[i][j]
+            if (node.symbol) {
+
+                alphabetDict[node.symbol] = [...alphabetDict[node.symbol], node]
+            }
+
+        }
+    }
+
     for (let i = 0; i < board.grid.length; i++) {
         for (let j = 0; j < board.grid[0].length; j++) {
             // add links to node
@@ -37,15 +56,16 @@ const createAlphabet = () => {
 
 // adds letters to all unfixed nodes
 // TODO: pick from frequency table
-const fillWithLetters = (board, alphabet, alphabetDict) => {
+const fillWithLetters = (board) => {
+    const { alphabet } = createAlphabet()
+
     for (let i = 0; i < board.grid.length; i++) {
         for (let j = 0; j < board.grid[0].length; j++) {
             const node = board.grid[i][j]
-            if (!node.fixed) {
+            if (!node.fixed || board.start === node) {
                 const ndx = randInt(0, alphabet.length)
                 const letter = alphabet[ndx]
                 node.symbol = letter
-                alphabetDict[letter] = [...alphabetDict[letter], node]
             }
         }
     }
@@ -238,16 +258,15 @@ const logWordPositions = (board) => {
 }
 
 const setupWords = (board, seedWords, criteria) => {
-    const { alphabet, alphabetDict } = createAlphabet()
 
     addSeedWords(board, seedWords)
 
 
-    fillWithLetters(board, alphabet, alphabetDict)
+    fillWithLetters(board)
 
     logWordPositions(board)
 
-    addLinks(board, alphabetDict)
+    addLinks(board)
 
 }
 

@@ -13,7 +13,7 @@ class Node {
 
   constructor(savedNode) {
     if (savedNode) {
-      this.loadSave(savedNode)
+      this.loadSave(saveNNode)
     }
     else {
       this.gridPos = Utils.gridPos(0, 0)
@@ -41,6 +41,7 @@ class Node {
   }
 
   rotateLinked(reverse) {
+
     this.links.forEach(node => node.rotate(reverse))
   }
 

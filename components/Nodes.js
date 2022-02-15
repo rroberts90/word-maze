@@ -50,7 +50,7 @@ const dynamicNodeSize = (diameter, tutorial) => {
 
 const borderSize = (diameter) => {
   return {
-    borderRadius: diameter / 2,
+    borderRadius: diameter / 2.25,
     borderWidth: Math.floor(diameter / 9) + .5
   }
 }
@@ -225,8 +225,6 @@ const Pulse = (props) => {
 }
 
 
-
-
 const styles = StyleSheet.create({
   nodeSize: {
     height: '80%',
@@ -234,7 +232,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgb(220,220,220)",
     zIndex: 10,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    margin: '1%'
   },
 
   nodeBorder: {

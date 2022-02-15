@@ -1,4 +1,4 @@
-import {   randInt}  from '../Utils.js'
+import {   randInt, rotateArray}  from '../Utils.js'
 
 // rotates nextNode initial color position until computed(current) position is a match 
 // between curr and nextNode.
@@ -152,7 +152,7 @@ const pathFinder = (board, criteria) => {
                     }
                 }
                 // the candidate can be mutated. Rotate the colors till it is a match
-                else if (!candidate.fixed && candidate.frozen == 0 && !board.solution.find(node=> node===candidate)) {
+                else if (!candidate.fixed && candidate.frozen == 0 && !candidate.usedInWord) {
 
                     rotateUntilMatched(curr, candidate)
 

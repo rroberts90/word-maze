@@ -215,6 +215,14 @@ const getAllNeighbors = (numRow, numCol)  => {
           node.direction=-1}
           ))
     }
+    resetWords() {
+      this.grid.forEach((row) => row.forEach(node => {
+        node.usedInWord = false 
+      }))
+
+      this.words = []
+      this.currentWord = null
+    }
 
     /**
      * user requests hint. 

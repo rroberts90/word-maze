@@ -2,7 +2,7 @@ import Board from '../board/Board.js';
 import {  rotateArray, randInt, rotateColors, logGridPos, gridPos}  from '../Utils.js'
 import getCriteria from './Criteria.js';
 //import solutionChecker from './SolutionChecker'
-//import pathFinder from './SolutionFinder'
+import pathFinder from './SolutionFinder'
 import setupWords from './WordPlacer'
 
 
@@ -46,9 +46,8 @@ const randomizeBoard = (board) => {
     for (let i = 0 ;i < board.grid.length; i++) {
         for (let j = 0; j < board.grid[0].length; j++) {
             const node = board.grid[i][j]
-            if (board.start !== node) {
-                node.colors = randomizeColors(node.colors)
-            }
+              node.colors = randomizeColors(node.colors)
+            
         }
     }
 }
@@ -89,7 +88,7 @@ const addLink = (node, otherNode) => {
 
 const keepTrying = (tries, maxTries, pathLength,criteria) => {
     if(tries < maxTries) {
-        return false;
+        return true;
     }
     if(pathLength < criteria.minPathLength) {
         return true;
@@ -110,42 +109,61 @@ const setStart = (board) =>{
 
 const buildBoard = (seedWords, difficulty) => {
 
-    const t1 = Date.now();
-    const board = new Board();
+    const t1 = Date.now()
+    const board = new Board()
     
-    const criteria = getCriteria(difficulty);
-    setStart(board);
+    const criteria = getCriteria(difficulty)
 
-    setupWords(board,seedWords, criteria);
-
-    //setupLinkedNeighbors(board, criteria);
-    board.resetGrid();
 
     //setupSpecialNodes(board, criteria);
    
-   let realCount = 0;
-   const MaxTries = 50;
-   let shortestSolution = 0;
+   let realCount = 0
+   const MaxTries = 50
+   let shortestSolution = 0
    
-   let bestBoard = null;
-   let pathLength = 0;
-   while(keepTrying(realCount,MaxTries, pathLength, criteria) && false){
-        if(realCount % 10 === 0 ){
-            randomizeBoard(board);
-         }
+   let bestBoard = null
+   let pathLength = 0
+   while( realCount < 1) {//keepTrying(realCount,MaxTries, pathLength, criteria)){
+   
 
-        criteria.falsePathsRemaining = criteria.falsePaths;
-       // pathFinder(board, criteria);
+        //criteria.falsePathsRemaining = criteria.falsePaths;
+
+        setStart(board)
+        board.resetGrid()
+        board.resetWords()
+        randomizeBoard(board)
+
+        setupWords(board,seedWords, criteria)
+
+        //setupLinkedNeighbors(board, criteria);
+        board.resetGrid()
+
+        board.grid.forEach((row) => row.forEach(node => {
+            node.usedInWord = false 
+          }))
+
+        for(let i= 0;i< board.words.length;i++) {       
+            board.currentWord = board.words[i]
+            const finished = pathFinder(board, criteria)
+            if(!finished) {  // if we can't get a solution to a word try again
+                break;
+            }
+            board.words[i].solution = board.visitedNodes.map(node=>node)
+            // lock in place 
+            board.words[i].nodes.forEach(node=> node.usedInWord=true)
+
+        }
+        realCount++
 
    }
 
-    board.resetGrid();
+    board.resetGrid()
 
-    
-    const t2 = Date.now();
+
+    const t2 = Date.now()
 
     //console.log(`\ntotal time to setup: ${t2- t1} milliseconds`);
-   return board;
+   return board
 }
 
-export default buildBoard;
+export default buildBoard
