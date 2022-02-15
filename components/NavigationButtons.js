@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { TouchableOpacity, Image, StyleSheet, Text, SafeAreaView, Animated, View, Pressable } from 'react-native'
+import { TouchableOpacity, Image, StyleSheet, Text, View } from 'react-native'
 
 import { storeItem } from '../Storage'
 import Globals from '../Globals'
+
+import useSound from '../custom-hooks/UseSound'
+
 
 const defaultBackground = Globals.defaultBackground
 const buttonBackground = defaultBackground
@@ -28,7 +31,7 @@ const PlayButton = ({ navigation, title, disabled, toggleDisabled, borderColor, 
             }}>
                 <Image style={[styles.play,
                 { tintColor: borderColor, opacity: .8 }]}
-                    source={ require('../Icons/play1.png')} />
+                    source={ require('../assets/play1.png')} />
             </View>
             <Text style={[styles.buttonText, text ? { fontSize: 30 } : {}]}>{text ? text : title} </Text>
         </TouchableOpacity>
@@ -54,7 +57,6 @@ const IconButton = ({ navigation, title, disabled, toggleDisabled, borderColor, 
 }
 
 const BackButton = ({ navigation,  board }) => {
-
     return (
 
         <TouchableOpacity
@@ -67,7 +69,7 @@ const BackButton = ({ navigation,  board }) => {
                 navigation.navigate('word-maze')
             }}
         >
-            <Image style={{ height: '100%', width: '100%', opacity: .7 }} source={require('../Icons/backArrow2.png')} />
+            <Image style={{ height: '100%', width: '100%', opacity: .7 }} source={require('../assets/backArrow2.png')} />
         </TouchableOpacity>
 
     )
@@ -92,7 +94,7 @@ const PuzzleButton = ({ navigation, disabled, toggleDisabled, info }) => {
     const progressStr = `${info.initialProgress}/${info.mazeCount}`
 
     const puzzleCompleted = info.initialProgress >= info.mazeCount
-    const source = !puzzleCompleted ? require('../Icons/play1.png') : require('../Icons/check1.png')
+    const source = !puzzleCompleted ? require('../assets/play1.png') : require('../assets/check1.png')
     return (
         <TouchableOpacity
             style={[styles.menuButton, styles.puzzleButton]}
@@ -249,4 +251,4 @@ const styles = StyleSheet.create({
 
     }
 })
-export { BackButton, PlayButton, IconButton, PlayButtonExpanded, BoardSize, PuzzleButton }
+export { BackButton, PlayButton, IconButton, PuzzleButton }

@@ -3,9 +3,6 @@ import {StyleSheet, View, Animated,Easing, useWindowDimensions} from 'react-nati
 
 import { distance, centerOnNode,rotateColors,convertToLayout, point } from '../Utils'
 
-import GlobalStyles from '../GlobalStyles'
-
-const defaultFinishColor = GlobalStyles.defaultBackground.backgroundColor
 
 const toDegrees = (angle) =>{
     return angle * (180 / Math.PI)
@@ -165,6 +162,7 @@ const getFixedStyles = (startNode, endNode) => {
     }
   }
 }
+
 const getTransformStyles = (start , end, arrowWidth )=> { 
   if(start.row < end.row){
     return [{translateY: -arrowWidth/4},{rotate: '225deg'}]
@@ -262,95 +260,6 @@ const Arrow2 = ({moveAnim, width}) => {
       }]}/>
 }
 
-const BridgeSegment=  ({color, width, end}) => {
-
-  const positionStyles = end === 'start' ? {bottom: '-20%'}  : {top: '-20%'}
-  
-  return <Animated.View  style={[{
-    position: 'absolute',    
-    left: 0,
-    width: width,
-    height:  '50%',
-    backgroundColor: color,
-    borderTopEndRadius:width
-  }, positionStyles]}
-   />
-}
-
-  const CapSegment = ({end,node, won}) => {
-
-    let color
-
-    const fadeAnim = useRef(new Animated.Value(.65)).current
-    const triangleAnim1 = useRef(new Animated.Value(0)).current
-    const triangleAnim2 = useRef(new Animated.Value(0)).current
-
-    if(end === 'finish') {
-     color = won ? rotateColors(node.colors, node.rot)[0] : defaultFinishColor
-    }else{
-      color = node.colors[2]
-    }
-
-
-    useEffect(() => {
-      if ((won === true && end === 'finish')) {
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: true,
-          isInteraction: false,
-          easing: Easing.Quad
-        }).start(finished=> setTimeout(()=>fadeAnim.setValue(.65),3000))
-      }
-      if(end==='start'){
-        fadeAnim.setValue(1)
-      }
-    }, [won])
-
-    const triangleOffset = Math.floor(node.pos.y /2)
-
-    useEffect(()=> {
-     if(won=== false && color== defaultFinishColor){
-        Animated.stagger(1500, [animateArrow(triangleAnim1, 75),animateArrow(triangleAnim2, 75) ]).start()
-        //animateArrowForever(triangleAnim1, triangleOffset)
-      }
-    },[won])
- 
-    const width = end === 'start' || won ? node.diameter / 6 : node.diameter / 5
-    const border = color==defaultFinishColor ? 2: 0
-
-    const left = node.pos.x + node.diameter/2 - (width/2) 
-
-
-    const triangleWidth = node.diameter / 5 - 6
-  
-    return <Animated.View style={{
-      backgroundColor: color,
-      width: width,
-      height: '100%',
-      left: left,
-      opacity: fadeAnim,
-      borderLeftWidth: border,
-      borderRightWidth: border,
-      borderColor: 'rgba(0,0,0,.7)',
-      transform: [{ translateY: end === 'start' ? -node.diameter/4 : node.diameter/4 },
-      ],
-      
-      flexDirection: 'column',
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-      borderTopEndRadius:width
-    }}>
-      {
-        end !== 'start' && color === defaultFinishColor ?
-          [<Arrow2 width= {triangleWidth} moveAnim={triangleAnim1} key={1} />,
-           <Arrow2 width= {triangleWidth} moveAnim={triangleAnim2} key={2} />,
-          ]
-          : null}
-     <BridgeSegment color={color} width={width} end={end}/>
-    </Animated.View>
-  }
-
   const styles  = StyleSheet.create({
     dot: {
         width:1,
@@ -369,5 +278,5 @@ const BridgeSegment=  ({color, width, end}) => {
         }
   })
 
-  export {Segment, UserPath, Fade, CapSegment, calculateColor}
+  export {Segment, UserPath, Fade, calculateColor}
 

@@ -2,13 +2,13 @@
 import React, { useState, useEffect } from 'react'
 
 import { View, Text, Button, Image, Pressable, StyleSheet, ScrollView } from 'react-native'
-import colorScheme from '../Gameplay/ColorSchemes'
-import useSound from '../UseSound'
+import useSound from '../custom-hooks/UseSound'
 
 import { clearAll, storeItem, getSettings } from '../Storage'
 import { InfoHeader } from './Header'
 
-import { getGlyphSource, getAnimalSource, getSymbolSource, getImpossibleSource, getDogSource, getDog2Source, getScienceSource, getFoodSource, getDesertSource, getFlowerSource, getFruitSource, getCardSource } from './Symbols'
+import Globals from '../Globals'
+const colorScheme = Globals.colorScheme
 
 const Selector = ({ toggle, color, text1, text2, press1, press2 }) => {
     return (

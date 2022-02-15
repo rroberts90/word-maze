@@ -1,9 +1,9 @@
 
-import {gridPos, randInt, point, compressGridPos} from '../Utils.js'
+import {gridPos, randInt, point, compressGridPos,unCompressGridPos} from '../Utils'
 
 import Globals from '../Globals'
-import Node from './Node.js'
-
+import Node from './Node'
+import Word from './Word'
 const colorScheme = Globals.colorScheme;
 
 const getColors = (colorSet) => {
@@ -17,7 +17,8 @@ const createEmptyGrid = (numRow, numCol) =>{
     for (let i = 0;i < numRow; i++) { 
       grid[i] = [] 
       for (let j = 0;j < numCol; j++) { 
-        grid[i][j] = new Node(gridPos(i,j), point(0,0), getColors(colorScheme)) 
+        grid[i][j] = new Node() 
+        grid[i][j].gridPos = gridPos(i,j)
 
       } 
     } 
@@ -65,7 +66,7 @@ const getAllNeighbors = (numRow, numCol)  => {
       if (boardData) {
         this.loadSave(boardData);
       }else{
-        this.grid = createEmptyGrid(4,6);
+        this.grid = createEmptyGrid(6,4);
         this.visitedNodes = [];
         this.words = [];
         this.solutions = [];
@@ -241,14 +242,13 @@ const getAllNeighbors = (numRow, numCol)  => {
     save(){
       //prevents cyclical refs
       const visitedNodes = this.visitedNodes.map(node=> compressGridPos(node.gridPos))
-      const solution = this.solution.map(node=> compressGridPos(node.gridPos))
+      const solutions = this.solutions.map(node=> compressGridPos(node.gridPos))
     
       return {
         grid:this.grid.map(row=>row.map(node => node.save())),
         start: this.start.gridPos,
-        finish: this.finish.gridPos,
         visitedNodes: visitedNodes,
-        solution: solution,
+        solutions: solutions,
         pathLength: this.pathLength
       
       }
@@ -276,16 +276,15 @@ const getAllNeighbors = (numRow, numCol)  => {
       this.setupNeighbors(this.grid.length, this.grid[0].length);
   
       this.start = this.getNodeFromGridPos(savedBoard.start);
-      this.finish = this.getNodeFromGridPos(savedBoard.finish);
 
-      this.visitedNodes = savedBoard.visitedNodes.map(rawGridPos => this.getNodeFromGridPos(MyMath.unCompressGridPos(rawGridPos)));
-      this.solution = savedBoard.solution.map(rawGridPos => this.getNodeFromGridPos(MyMath.unCompressGridPos(rawGridPos)));
+      this.visitedNodes = savedBoard.visitedNodes.map(rawGridPos => this.getNodeFromGridPos(unCompressGridPos(rawGridPos)));
+      this.solutions = savedBoard.solutions.map(rawGridPos => this.getNodeFromGridPos(unCompressGridPos(rawGridPos)));
       
     }
   
   
      saveVisitedNodes (){ 
-       //rewrite because the old way caused rendering bugs
+       //TODO: rewrite because the old way caused rendering bugs
        // saves visited Nodes in local storage
       
          /*console.log(`saveVisitedNodes: ${this.visitedNodes.length}`);

@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-const packInfo = require('./PremadeBoardStuff/Output/packInfo.json')
 
 const clearAll = async () => {
     try {
@@ -100,17 +99,15 @@ const storeItem = async (key,value) => {
 
 
     storeItem('sound', true)
-    storeItem('music', false)
 
     storeItem('vibrate', true)
 
-    intializeLevelProgress()
+    //intializeLevelProgress()
   }
   const intializeLevelProgress = () => {
-    const zeroProgress = packInfo.levels.map(level=> {return {progress:0, stars:[], visitedNodes: [], savedTime: 0}})
 
-    storeItem('levelProgress',zeroProgress)
+    //storeItem('levelProgress',zeroProgress)
 
   }
 
-  export {clearAll, storeItem, getItem, getItems, levelUp, initialize, getSettings, intializeLevelProgress}
+  export {clearAll, storeItem, getItem, levelUp, initialize, getSettings}

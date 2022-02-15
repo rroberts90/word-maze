@@ -1,8 +1,9 @@
-import Board from '../board/board.js';
-import {  rotateArray, randInt, rotateColors, logGridPos, randInt, gridPos}  from '../Utils.js'
-import getCriteria from './criteria.js';
+import Board from '../board/Board.js';
+import {  rotateArray, randInt, rotateColors, logGridPos, gridPos}  from '../Utils.js'
+import getCriteria from './Criteria.js';
 //import solutionChecker from './SolutionChecker'
-import pathFinder from './SolutionFinder'
+//import pathFinder from './SolutionFinder'
+import setupWords from './WordPlacer'
 
 
 const randomizeColors = (colors) => {
@@ -52,37 +53,6 @@ const randomizeBoard = (board) => {
     }
 }
 
-const setupWords = (board, criteria) => {
-   // dummy pass
-   const characterCodes = Array.from(Array(26)).map((e, i) => i + 97);
-   const alphabet = characterCodes.map((x) => String.fromCharCode(x));
-
-   const alphabetDict = {}
-   alphabet.forEach(letter=> alphabetDict[letter] = []);
-
-   for(let i =0;i< board.grid.length;i++){
-       for(let j = 0;j < board.grid[0].length;j++){
-           const ndx = randInt(0, alphabet.length);
-           const letter = alphabet[ndx]
-           board.grid[i][j].symbol = letter;
-            alphabetDict[letter] = [...alphabetDict[letter], board.grid[i][j]];
-
-       }
-   }
-
-   // add links
-
-   for(let i =0;i< board.grid.length;i++){
-    for(let j = 0;j < board.grid[0].length;j++){
-        // add links to node
-        const node = board.grid[i][j];
-        node.links = alphabetDict[node.symbol].filter(otherNode=> node !== otherNode );
-
-    }
-}
-
-
-}
 
 // call after setupWords
 const setupLinkedNeighbors = (board, criteria) => {
@@ -134,7 +104,8 @@ const setStart = (board) =>{
     const numCol  =  board.grid[0].length
     const randGridPos = gridPos(numRow-1,randInt(0,numCol))
     board.start = board.grid[randGridPos.row][randGridPos.col]
-
+    board.start.fixed = true
+    board.visitedNodes = [board.start]
 }
 
 const buildBoard = (seedWords, difficulty) => {
@@ -144,9 +115,12 @@ const buildBoard = (seedWords, difficulty) => {
     
     const criteria = getCriteria(difficulty);
     setStart(board);
-    setupWords(board, criteria);
 
-    setupLinkedNeighbors(board, criteria);
+    setupWords(board,seedWords, criteria);
+
+    //setupLinkedNeighbors(board, criteria);
+    board.resetGrid();
+
     //setupSpecialNodes(board, criteria);
    
    let realCount = 0;
@@ -167,10 +141,10 @@ const buildBoard = (seedWords, difficulty) => {
 
     board.resetGrid();
 
+    
     const t2 = Date.now();
 
-    console.log(`\ntotal time to setup: ${t2- t1} milliseconds`);
-   console.log(`Took ${realCount} tries to create path\nSolution Length: ${board.solution.length} \nTotal Path Length: ${board.totalPathLength}\n-----------`);
+    //console.log(`\ntotal time to setup: ${t2- t1} milliseconds`);
    return board;
 }
 

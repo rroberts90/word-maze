@@ -25,7 +25,7 @@ import { point, convertToLayout } from '../Utils'
 
 
   const Letter = ({letter}) => {
-    <Text style={styles.letter}>{letter}</Text>
+    return <Text style={styles.letter} allowFontScaling={true}>{letter}</Text>
   }
   
   const ArrowPadding = 1
@@ -114,20 +114,7 @@ const shouldAddArrow = (node, neighbor) => {
     pos = point(pos.x + node.pos.x, pos.y + node.pos.y)
    
     
-    if(linkedNode.links.includes(node)) {
-      if (node.gridPos.row === linkedNode.gridPos.row) { 
-          type = 4
 
-          if(node.gridPos.col > linkedNode.gridPos.col) { // only 1 node needs to render bidirectional
-            return null
-          }
-      }else{
-          type = 5
-          if(node.gridPos.row > linkedNode.gridPos.row) {// only 1 node needs to render bidirectional
-            return null
-          }
-      }
-  }
   const source = getArrowSource(type)
 
 
@@ -192,7 +179,8 @@ const shouldAddArrow = (node, neighbor) => {
         opacity: .25
       },
       letter: {
-
+        fontSize: 30,
+        textDecorationLine: 'underline'
       }
 
   })

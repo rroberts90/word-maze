@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { View, Text, StyleSheet, Animated, Easing } from 'react-native'
 import { BackButton } from './NavigationButtons'
-import GlobalStyles from '../Globals'
+import Globals from '../Globals'
 import { getItem } from '../Storage'
-const defaultBackground = GlobalStyles.backgroundColor
+const defaultBackground = Globals.backgroundColor
 
 const Header = ({ title1, item1, title2, item2, fontAnim, navigation }) => {
     return (
@@ -80,7 +80,7 @@ const PuzzleHeader = ({ navigation, time, info, getGoalInfo, level, levelDisplay
     return (
         <View style={styles.box3}>
 
-            <BackButton navigation={navigation} overrideDestination={'puzzles'} board={board} time={time} />
+            <BackButton navigation={navigation} board={board} time={time} />
 
             <View style={{ position: 'absolute', left: 0, bottom: 0, justifyContent: 'flex-start', alignItems: 'center', width: '100%' }}>
                 <View style={styles.bar} />
@@ -89,9 +89,7 @@ const PuzzleHeader = ({ navigation, time, info, getGoalInfo, level, levelDisplay
                 <Text style={styles.header}>#</Text>
                 <Text style={styles.timetext}>{levelDisplay} </Text>
             </View>
-            <View style={styles.duo}>
-                <Animated.Image style={[styles.star, { tintColor: goalInfo.color, transform: [{ scale: sizeAnim }], opacity: fadeAnim }]} source={require('../Icons/star4.png')} />
-            </View>
+
             <View style={styles.duo}>
                 {puzzleTimer ? <Text style={styles.timetext}>{time} s</Text> : null}
             </View>
@@ -121,17 +119,14 @@ const styles = StyleSheet.create({
         paddingBottom: 5
     },
     box3: {
-        position: 'absolute',
 
-        height: '10%',
+        flex: 1,
         width: '100%',
         backgroundColor: defaultBackground,
         flexDirection: 'row',
         alignItems: 'flex-end',
         justifyContent: 'center',
         paddingBottom: 5,
-        top: 0,
-
 
     },
     header: {

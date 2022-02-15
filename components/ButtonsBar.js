@@ -3,10 +3,9 @@ import React, {useState, useRef, useEffect} from 'react'
 
 import { View, StyleSheet, Button, TouchableOpacity, Image, SafeAreaView} from 'react-native'
 
-import useSound from '../Sounds'
-import GlobalStyles from '../GlobalStyles'
-
-const defaultBackground = GlobalStyles.defaultBackground.backgroundColor
+import useSound from '../custom-hooks/UseSound'
+import Globals  from '../Globals'
+const defaultBackground = Globals.defaultBackground
 
 const ButtonsBar = ({ undoEl, restartEl, hintEl}) => {
     const [disabled, toggleDisabled]= useState(false)
@@ -36,13 +35,13 @@ const ButtonsBar = ({ undoEl, restartEl, hintEl}) => {
              <View style={styles.bar}/>        
             </View>
             <TouchableOpacity ref={undoEl} style={styles.button} onPress={()=>{ undoEl.current.onPress(true)}} >
-                <Image style={styles.icon} source={require('../Icons/undo2.png')} />
+                <Image style={styles.icon} source={require('../assets/undo2.png')} />
             </TouchableOpacity>
-            <TouchableOpacity ref={restartEl} style={[styles.button]} onPress={()=> {play('button') restartEl.current.onPress()}} >
-                <Image style={styles.icon} source={require('../Icons/restart2.png')} />
+            <TouchableOpacity ref={restartEl} style={[styles.button]} onPress={()=> {play('button'); restartEl.current.onPress()}} >
+                <Image style={styles.icon} source={require('../assets/restart2.png')} />
             </TouchableOpacity>
             <TouchableOpacity ref={hintEl} style={[styles.button, styles.lightbulb, {opacity: disabled? .5: .8 }]} onPress={handleOnHint} disabled={disabled}>
-                <Image style={[styles.icon, styles.lightbulbIcon]} source={require('../Icons/lightbulb.png')} />
+                <Image style={[styles.icon, styles.lightbulbIcon]} source={require('../assets/lightbulb.png')} />
             </TouchableOpacity>
         </View>
 
@@ -51,13 +50,12 @@ const ButtonsBar = ({ undoEl, restartEl, hintEl}) => {
 
 const styles = StyleSheet.create({
     buttonsBar: {
+        flex:1,
         width: '100%',
-        position: 'absolute',
-        bottom: 0,
         flexDirection: 'row',
         justifyContent: 'space-evenly',
         backgroundColor: defaultBackground,
-        height: '9%'
+        
     },
     icon: {
         height: '100%',

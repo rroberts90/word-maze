@@ -1,20 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react'
 import {Animated, useWindowDimensions, Easing} from 'react-native'
-import { Board } from './Gameplay/Board'
+import { Board } from './board/Board'
 
 import GameBoard from './components/GameBoard'
 import ButtonsBar from './components/ButtonsBar'
 
-import { storeItem, getItem } from './storage'
+import { storeItem, getItem } from './Storage'
 
-import Header from './components/Header'
+import {InfoHeader} from './components/Header'
 import useSound from './custom-hooks/UseSound'
 
-import GlobalStyles from './GlobalStyles'
-import buildBoard from './board-maker/boardBuilder'
+import buildBoard from './board-maker/BoardBuilder'
 
 const Duration = 1500
-
 
 const Game = ({ navigation, route }) => {
 
@@ -28,40 +26,46 @@ const Game = ({ navigation, route }) => {
   const undoEl = useRef(null)
   const restartEl = useRef(null)
   const hintEl = useRef(null)
+ 
   const board = useRef(null)
 
   const [saveLoaded, setSaveLoaded] = useState(false)
 
   const {play} = useSound()
   
-  const getBoard = () => {
+  const getBoard = (ref) => {
 
-    if (board.current === null) {
+    if (ref.current === null) {
       //board.current = new Board({gameType,gameId});
+     
       // for testing
-      board.current = buildBoard([], 1);
+      const seedWords = ['irate', 'inert', 'firetruck']
+      const seedWords2 = ['firetruck']
+      const seedWords3 = ['cowboy', 'firetruck']
+      const seedWords4 = ['cowboy','boy','range','howdy','partner']
+      ref.current = buildBoard(seedWords4, 1);
     }
 
-    return board.current
+    return ref.current
 
   }
 
   useEffect(() => {
 
     console.log('---------\nnew game')
-    getBoard()
+    getBoard(board)
 
   }, [])
 
   return (<>
       <GameBoard 
-        getBoard={() => getBoard(board0)}
+        getBoard={() => getBoard(board)}
         undoEl={undoEl}
         restartEl={restartEl}
         hintEl={hintEl}
+        navigation = {navigation}
       />
-    <ButtonsBar undoEl={undoEl} restartEl={restartEl} hintEl={hintEl} />
-    <Header fontAnim={1} navigation={navigation}  />   
+
   </>
   )
 

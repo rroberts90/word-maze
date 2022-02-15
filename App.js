@@ -3,14 +3,13 @@ import { View, Text, Button, Image, TouchableOpacity, Pressable, StyleSheet, Sta
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-import {getItem, initialize, storeItem} from './storage'
+import {getItem, initialize, storeItem} from './Storage'
 
 import Game from './Game'
 import SettingsScreen from './components/Settings'
-//import useSound from './Sounds'
 import { PlayButton, IconButton } from './components/NavigationButtons'
 import LevelPicker from './components/LevelPicker'
-
+import useSound from './custom-hooks/UseSound'
 import Globals from './Globals'
 
 const defaultBackground = Globals.defaultBackground
@@ -19,7 +18,9 @@ const colorScheme = Globals.colorScheme
 function HomeScreen({ navigation }) {
     const [disabled, toggleDisabled]= useState(false)
 
-
+    useEffect(()=>{
+        navigation.navigate('daily', {gameId: 'test'});
+    },[])
     const {play}= useSound()
 
     return (
@@ -44,7 +45,7 @@ function HomeScreen({ navigation }) {
                 borderColor={'lightgrey'} 
                 disabled={disabled} 
                 toggleDisabled={toggleDisabled} 
-                icon={require('./Icons/Settings.png')} />
+                icon={require('./assets/settings.png')} />
             </View>
         </View>
 

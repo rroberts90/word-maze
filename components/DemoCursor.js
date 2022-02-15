@@ -60,7 +60,7 @@ const DemoCursor = ({ node, nextNode, first, firstNode }) => {
         </Animated.View>)
     }
     else if(node === firstNode) {
-        return <Animated.Image source={require('../Icons/hand2.png')}
+        return <Animated.Image source={require('../assets/hand2.png')}
             style={{
                 resizeMode: 'stretch',
                 tintColor: 'black',

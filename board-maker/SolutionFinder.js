@@ -47,69 +47,29 @@ const visit = (board, visitedNodes, candidate, criteria) => {
     return pathFinder(board, criteria)
 }
 
-/**
- * Returns an array of nodes adjacent to curr.
- * Nodes will be randomly selected from array. Nodes that 
- * the criteria dictate should be more likely to visit 
- * eg nodes closer to finish, nodes fixed in position to create loops, etc
- * @param {Node} curr 
- * @param {*} criteria 
- * @param {Node} finish
- * @returns 
- */
-const selectCandidates = (curr, criteria, finish, visitedNodes, solution) => {
+const selectCandidates = (curr, criteria, visitedNodes) => {
     let candidates //= [...curr.neighbors]
     let extras = []
 
-    const closestRow = Math.sign(finish.gridPos.row - curr.gridPos.row) + curr.gridPos.row 
-    const closestCol = Math.sign(finish.gridPos.col - curr.gridPos.col ) + curr.gridPos.col
-    
     candidates = curr.neighbors.map(node => {
-
-        // more likely to visit these nodes.
-        if(criteria && visitedNodes.length < criteria.minLength ) {
-
-            if(node.gridPos.row < curr || (node.gridPos === curr.gridPos && curr.gridPos.row !== finish.gridPos.row)) {
-                extras = [...extras, node, node, node, node, node, node]
-
-            }
-            if(node.gridPos.row !== closestRow && node.gridPos.col !== closestCol) {
-                extras = [...extras, node, node, node, node, node, node]
-            }               
-
-        }
-
         return node
-
-
     })
     
 
-    if(criteria && criteria.circles ) {
-        const fixedNeighbors = curr.neighbors.filter(node=> node.fixed)
-        if(criteria.circles === 2){
+    // if (criteria && criteria.circles) {
+    //     const fixedNeighbors = curr.neighbors.filter(node => node.fixed)
+    //     if (criteria.circles === 2) {
 
-            extras = [...fixedNeighbors, ...fixedNeighbors, ...fixedNeighbors, ...fixedNeighbors]
-        }else {
-            extras = [ ...fixedNeighbors]
+    //         extras = [...fixedNeighbors, ...fixedNeighbors, ...fixedNeighbors, ...fixedNeighbors]
+    //     } else {
+    //         extras = [...fixedNeighbors]
 
-        }
-    }
+    //     }
+    // }
 
     candidates = [...candidates, ...extras]
     // if on false path filter for finish 
 
-    if(criteria && criteria.onFalsePath) {
-       candidates = candidates.filter(node=> 
-        {     
-            if (node === finish || node.isNeighbor(finish)) {
-                return false
-            }else{
-                return true
-            }
-        })
-        
-    }
     return candidates
 }
 
@@ -123,42 +83,59 @@ const shouldStartFalsePath = (visitedNodes, criteria)=> {
     return randInt(1,3) === 1 ? true : false
   
 }
+
+// returns true if the pathing algorithm visited all the nodes in board's current word
+const isWordPathed = (board) => {
+    const {currentWord, visitedNodes}= board;
+    if(visitedNodes.length < currentWord.letters.length) { 
+        return false
+    }
+
+    for(let i = 0; i< currentWord.letters.length; i++){
+        if(visitedNodes[visitedNodes.length - i - 1] !== currentWord.nodes[currentWord.nodes.length -1 - i]){
+            return false
+        }
+    }
+    return true
+}
+
 const pathFinder = (board, criteria) => {
-    let { visitedNodes, finish } = board
+    let { visitedNodes, finish, currentWord} = board
     let curr = visitedNodes[visitedNodes.length - 1]
 
-    if (curr === finish) { // we are done here
-
+    if (isWordPathed(board)) { // we are done here
         return true
     }
 
-    const createFalsePath = shouldStartFalsePath(visitedNodes, criteria)
-    if(createFalsePath) {
-        criteria.onFalsePath = true
-        criteria.falsePathsRemaining--
+    // const createFalsePath = shouldStartFalsePath(visitedNodes, criteria)
+    // if(createFalsePath) {
+    //     criteria.onFalsePath = true
+    //     criteria.falsePathsRemaining--
 
-        //logGridPos('------\nstart of false path', curr.gridPos)
-        criteria.falsePathLength =  randInt(criteria.maxFalsePathLength/2, criteria.maxFalsePathLength+1) +1
-        //console.log(`falsePath Length: ${criteria.falsePathLength}`)
-        criteria.steps = 0
-    }
+    //     //logGridPos('------\nstart of false path', curr.gridPos)
+    //     criteria.falsePathLength =  randInt(criteria.maxFalsePathLength/2, criteria.maxFalsePathLength+1) +1
+    //     //console.log(`falsePath Length: ${criteria.falsePathLength}`)
+    //     criteria.steps = 0
+    // }
 
-    else if(criteria && criteria.onFalsePath) {
-        criteria.steps++
-        if(criteria.steps > criteria.falsePathLength) {
-            // go back
-            Array.from({length:criteria.steps-1}, ()=> board.removeLast())
-            curr = visitedNodes[visitedNodes.length-1]
-            //logGridPos('returned to start of false Path', curr.gridPos)
-            criteria.onFalsePath = false
-            //console.log('-------')
-        }
-    }
+    // else if(criteria && criteria.onFalsePath) {
+    //     criteria.steps++
+    //     if(criteria.steps > criteria.falsePathLength) {
+    //         // go back
+    //         Array.from({length:criteria.steps-1}, ()=> board.removeLast())
+    //         curr = visitedNodes[visitedNodes.length-1]
+    //         //logGridPos('returned to start of false Path', curr.gridPos)
+    //         criteria.onFalsePath = false
+    //         //console.log('-------')
+    //     }
+    // }
 
 
-        let candidates = selectCandidates(curr, criteria, finish, visitedNodes, board.solution)
+        let candidates = selectCandidates(curr, criteria,visitedNodes)
+     
         // pick one neighbor to visit next
         while (candidates.length > 0) {
+          
             const randomIndex = Math.floor(Math.random() * candidates.length)
             const candidate = candidates[randomIndex]
             if (board.isPathOpen(curr, candidate)) {

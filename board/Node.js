@@ -1,31 +1,33 @@
 
-import {rotateColors, compressGridPos} from '../Utils.js'
+import * as Utils from '../Utils.js'
+import Globals from '../Globals.js';
+const Default_Node_Width = 0
 
-const Default_Node_Width = 80
+const colorScheme = Globals.colorScheme;
 
-/**
-* 
-* @param {} props 
-*/
+const getColors = (colorSet) => {
+  return Object.entries(colorSet).map((arr) => arr[1])
+}
+
 class Node {
 
-  constructor(gridPos, point, colors, links, direction,diameter, savedNode) {
-    if(savedNode) {
+  constructor(savedNode) {
+    if (savedNode) {
       this.loadSave(savedNode)
     }
-    else { 
-      this.gridPos = gridPos
-    this.pos = point
-    this.colors = colors
-    this.rot = 0
-    this.neighbors = [] // Adjacent Nodes 
-    this.diameter = diameter || Default_Node_Width
-    this.links = links || [] // If this node is reached these nodes will rotate.
-    this.direction = direction || -1 // rotation direction
-    this.fixed = false // if node is in visited nodes list can't rotate
-    this.symbol = null
-    this.special = null
-    this.frozen = 0
+    else {
+      this.gridPos = Utils.gridPos(0, 0)
+      this.pos = Utils.point(0, 0)
+      this.colors = getColors(colorScheme)
+      this.rot = 0
+      this.neighbors = [] // Adjacent Nodes 
+      this.diameter = Default_Node_Width
+      this.links = [] // If this node is reached these nodes will rotate.
+      this.direction =  -1 // rotation direction
+      this.fixed = false // if node is in visited nodes list can't rotate
+      this.symbol = null
+      this.special = null
+      this.frozen = 0
     }
   }
 
@@ -48,8 +50,6 @@ class Node {
   matchPoint(point) {
     const neighbor = this.insideNeighbor(point)
     if (neighbor) {
-      //console.log(`inside neighbor:`)
-      //console.log(` ${neighbor.pos.x} ${neighbor.pos.y}`)
 
       const matchColor = this.isMatch(neighbor)
       if (neighbor && matchColor) {
@@ -58,6 +58,9 @@ class Node {
     }
     return { candidate: null, matchColor: null }
 
+  }
+  insideNeighbor(point) {
+    return this.neighbors.find(neighbor => Utils.pointPastCircle(point, this, neighbor));
   }
 
   isNeighbor(node) {
@@ -68,8 +71,8 @@ class Node {
     let match = null
 
     // get computed colors
-    const compNodeRotatedColors = rotateColors(node.colors, node.rot)
-    const myNodeRotatedColors = rotateColors(this.colors, this.rot)
+    const compNodeRotatedColors = Utils.rotateColors(node.colors, node.rot)
+    const myNodeRotatedColors = Utils.rotateColors(this.colors, this.rot)
 
     // node is a neighbor. must be above/below/left/right
     if (node.gridPos.row > this.gridPos.row) {
@@ -92,91 +95,85 @@ class Node {
   }
 
   save() {
-    const links = this.links.map(node => compressGridPos(node.gridPos))
+    const links = this.links.map(node => Utils.compressGridPos(node.gridPos))
     //const neighbors = this.neighbors.map(node => compressGridPos(node.gridPos))
 
     const saved = {
-      g: compressGridPos(this.gridPos),
-      c: this.colors.map(color=>color.replace('rgba','')),
+      g: Utils.compressGridPos(this.gridPos),
+      c: this.colors.map(color => color.replace('rgba', '')),
       l: links
     }
 
-    if(this.symbol){
-      saved['s'] =  this.symbol
+    if (this.symbol) {
+      saved['s'] = this.symbol
     }
-    if(this.special){
+    if (this.special) {
       saved['sp'] = this.special
     }
-    if(this.fixed) {
+    if (this.fixed) {
       saved['f'] = this.fixed
     }
-    if(this.direction != -1) {
+    if (this.direction != -1) {
       saved['d'] = this.direction
     }
-    if(this.rot != 0) {
+    if (this.rot != 0) {
       saved['r'] = this.rot
     }
     return saved
   }
-  
-  loadSave(savedNode) {
-    this.gridPos = MyMath.unCompressGridPos(savedNode.g);
-  
-    this.symbol = savedNode.s || null;
-    this.colors = savedNode.c.map(rawColor=> 'rgba' + rawColor);
-    this.special = savedNode.sp || null;
-   
 
-    if(savedNode.r && savedNode.r !== 0 ){
+  loadSave(savedNode) {
+    this.gridPos = Utils.unCompressGridPos(savedNode.g);
+
+    this.symbol = savedNode.s || null;
+    this.colors = savedNode.c.map(rawColor => 'rgba' + rawColor);
+    this.special = savedNode.sp || null;
+
+
+    if (savedNode.r && savedNode.r !== 0) {
       throw Error('node saved with rotation');
     }
     this.rot = savedNode.r || 0;
-    
+
     this.direction = savedNode.d || -1;
     this.fixed = savedNode.f || false;
-   
-    this.pos = MyMath.point(0,0);
-    
-    this.links = savedNode.l.map(link=> MyMath.unCompressGridPos(link));
+
+    this.pos = Utils.point(0, 0);
+
+    this.links = savedNode.l.map(link => Utils.unCompressGridPos(link));
 
   }
 
 
-  freezeLinks(){ 
-    this.links.forEach(linkedNode =>{
-        if(linkedNode.symbol === this.symbol){
-            linkedNode.frozen++
-        }
-    })
-
-  }
-  
-  unFreezeLinks(){ 
-    this.links.forEach(linkedNode =>{
-        if(linkedNode.symbol === this.symbol){
-            linkedNode.frozen--
-        }
+  freezeLinks() {
+    this.links.forEach(linkedNode => {
+      if (linkedNode.symbol === this.symbol) {
+        linkedNode.frozen++
+      }
     })
 
   }
 
+  unFreezeLinks() {
+    this.links.forEach(linkedNode => {
+      if (linkedNode.symbol === this.symbol) {
+        linkedNode.frozen--
+      }
+    })
 
-toString(){
-  //return `Node: (row: ${this.gridPos.row}, col:${this.gridPos.col} )`
-  return JSON.stringify({
-    gridPos: this.gridPos,
-    symbol: this.symbol,
-    colors: this.colors,
-    links: this.links.map(node => node.gridPos)
-
-  })//{
-  // gridPos: JSON.stringify(this.gridPos),
-  //  links: JSON.stringify(this.links)
+  }
 
 
+  toString() {
+    //return `Node: (row: ${this.gridPos.row}, col:${this.gridPos.col} )`
+    return JSON.stringify({
+      gridPos: this.gridPos,
+      symbol: this.symbol,
+      colors: this.colors,
+      links: this.links.map(node => node.gridPos)
 
-  //})
+    })
+  }
 }
-  }
 
 export default Node

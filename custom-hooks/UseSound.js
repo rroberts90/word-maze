@@ -1,22 +1,16 @@
 import { Audio } from 'expo-av'
 import React, { useState, useEffect } from 'react'
-import { getItem } from './Storage'
+import { getItem } from '../Storage'
 
-//const notes = [require('./Sounds/a.wav'), require('./Sounds/b.wav'), require('./Sounds/c.wav'), require('./Sounds/d.wav'), require('./Sounds/e.wav'), require('./Sounds/f.wav'), require('./Sounds/g.wav')]
 
 const sounds = {
-    'connect': require('./Sounds/tap2.wav'), 
-    'win': require('./Sounds/win3.mp3'),
-    'button': require('./Sounds/tap1.wav'),
-    'undo': require('./Sounds/tap2.wav'),
-    'paper': require('./Sounds/paper.wav'),
-    'gameOver':require('./Sounds/gameOver1.wav'),
-    'packWin':require('./Sounds/puzzlePackWin.wav')
+    'connect': require('../assets/sounds/tap2.wav'), 
+    'win': require('../assets/sounds/win3.mp3'),
+    'button': require('../assets/sounds/tap1.wav'),
+    'undo': require('../assets/sounds/tap2.wav'),
+    'gameOver':require('../assets/sounds/gameOver1.wav'),
+    'packWin':require('../assets/sounds/puzzlePackWin.wav')
 
-}
-
-const getNextNoteNdx = (ndx) => {
-    return (ndx+1) % notes.length
 }
 
 export default function useSound() {

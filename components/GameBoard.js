@@ -8,21 +8,29 @@ import DemoCursor from './DemoCursor'
 import { point, centerOnNode, logGridPos, rotateColors } from '../Utils'
 import { UserPath } from './Paths'
 import useInterval from '../custom-hooks/UseInterval.js'
-import { levelUp, getItem, storeItem } from '../storage'
+import { levelUp, getItem, storeItem } from '../Storage'
 import useSound from '../custom-hooks/UseSound'
 import { Arrows } from './Symbols'
+import { InfoHeader } from './Header'
+import ButtonsBar from './ButtonsBar'
 
 import Globals from '../Globals'
 const defaultBackground = Globals.backgroundColor
 
 
-const GameBoard = ({ getBoard, hintEl, undoEl, restartEl }) => {
+const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
 
   const height = useWindowDimensions().height
 
   const [win, setWin] = useState(() => false)
+//  console.log(getBoard().getCurrentNode().toString())
 
-  const [currentNode, setCurrentNode] = useState(() => { return getBoard().getCurrentNode() })
+  const [currentNode, setCurrentNode] = useState(() => { 
+    if(!getBoard().getCurrentNode()) {
+      throw Error('No current node')
+    }
+    
+    return getBoard().getCurrentNode() })
 
   const lineSegments = useRef([])
   const fadeSegments = useRef([])
@@ -37,16 +45,12 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl }) => {
 
   useEffect(() => {
 
-    if (l !== 0) {
       resetCurrentNode(1600)
-    }
+    
 
-    setWin(false)
     setDefaultPulser(0)
-
     lineSegments.current = []
-
-  }, [l])
+  }, [])
 
   const addLineSegment = (node, next) => {
 
@@ -74,22 +78,6 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl }) => {
 
     resetCurrentNode(1)
 
-    setTimeout(() => {
-      if (loading) {
-        if (lineSegments.current.length === 0 && getBoard().visitedNodes.length > 1) {
-          // there are saved nodes, fire up some starter line segments
-          getBoard().visitedNodes.reduce((prev, curr) => {
-
-            addLineSegment(prev, curr)
-            return curr
-          })
-        }
-
-        getBoard().grid.forEach((row) =>
-          row.forEach((node) => { node.loaded = true }))
-        toggleLoading(false)
-      }
-    }, 500)
 
   }
 
@@ -107,7 +95,7 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl }) => {
 
     triggerPulser(currentValue => currentValue + 1)
 
-    if (next === getBoard().finish) {
+    if (false) { //TODO PUT FINISH CONDITION HERE
 
       levelUp(getBoard())
 
@@ -129,30 +117,11 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl }) => {
       play(hint ? 'button' : 'connect')
 
     }
-    if (next.special === 'booster') {
-      setMoves(moves => moves - 5)
-      setTime(time => time + 5)
-      next.special = null
-      setMoves(moves => {
-        return moves > 0 ? moves + 1 : moves
-      })
-
-
-    } else {
-      setMoves(moves => moves + 1)
-
-    }
-
   }
 
   function detectMatch(point) {
 
     const node = getBoard().getCurrentNode()
-
-    if (node === getBoard().finish || getBoard().forcedFinish) { // prevents glitch where user can trigger multiple game finishes
-      return { newNode: null, prevPoint: null }
-
-    }
 
     const { candidate } = node.matchPoint(point)
 
@@ -245,31 +214,38 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl }) => {
   }
 
   useEffect(() => {
-    if (current) {
       hintEl.current.onPress = onHint
       undoEl.current.onPress = onUndo
       restartEl.current.onPress = onRestart
     }
-  }, [current])
+  )
 
   const loadingWall = loading ? <View style={styles.loadingWall} /> : null
 
   return (
 
     <View style={[styles.container]} >
-
-      <Arrows grid={getBoard().grid} />
+    <InfoHeader navigation={navigation} title={'The Daily'} />   
 
       <UserPath segments={lineSegments.current} fades={fadeSegments.current} />
-      {getBoard().gameType === 'tutorial' && l === 0 ? <DemoCursor node={getBoard().start} nextNode={getBoard().solution[1]} first={true} firstNode={getBoard().start} /> : null}
 
-      <Pulse pos={currPosF} colors={rotateColors(currentNode.colors, currentNode.rot)} GOGOGO={pulser} diameter={currentNode.diameter} isFinish={currentNode == getBoard().finish} />
+      <Pulse pos={currPosF} 
+      colors={rotateColors(currentNode.colors, currentNode.rot)} 
+      GOGOGO={pulser} 
+      diameter={currentNode.diameter} />
 
-      <Cursor node={currentNode} currPoint={point(currX, currY)} triggerPulser={triggerPulser} detectMatch={detectMatch} intervalId={intervalId} />
-      <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} won={win} triggerPulser={triggerPulser} />
-      {getBoard().gameType === 'tutorial' && l === 0 ? <DemoCursor node={getBoard().start} nextNode={getBoard().solution[1]} firstNode={getBoard().start} /> : null}
+      <Cursor node={currentNode} 
+      currPoint={point(currX, currY)} 
+      triggerPulser={triggerPulser} 
+      detectMatch={detectMatch} 
+      intervalId={intervalId} />
+    
+      <GridView board={getBoard()} 
+      afterUpdate={updateAfterLayout} 
+      height={height} won={win} 
+      triggerPulser={triggerPulser} />
 
-      {loadingWall}
+      <ButtonsBar undoEl={undoEl} restartEl={restartEl} hintEl={hintEl} />
     </View>
   )
 }

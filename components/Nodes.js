@@ -1,21 +1,21 @@
 import { Animated, View, StyleSheet, Easing, Text, Image, ImageBackground, useWindowDimensions } from "react-native"
 import React, { useEffect, useRef, useState } from "react"
-import { convertToLayout, point } from '../Utils'
-import { Symbol, Special } from './Symbols'
 
-const Node_Width = 60
+import { Letter } from './Symbols'
+
 
 import Globals from '../Globals'
+import { convertToLayout } from "../Utils"
 
 const defaultNodeColor = Globals.defaultNodeColor
 
 const measure = (ref, node, afterUpdate) => {
   if (ref.current) {
     ref.current.measureInWindow((x, y, width, height) => {
-      if(y > 0) {
-        node.pos = { x: x, y: y }
-      }
+        
+      node.pos = { x: x, y: y }
       node.diameter = Math.floor(width)
+
       if (afterUpdate) {
         afterUpdate()
       }
@@ -51,7 +51,7 @@ const dynamicNodeSize = (diameter, tutorial) => {
 const borderSize = (diameter) => {
   return {
     borderRadius: diameter / 2,
-    borderWidth: Math.floor(diameter / 6) + .5
+    borderWidth: Math.floor(diameter / 9) + .5
   }
 }
 
@@ -99,7 +99,7 @@ const Frozen = ({ node, rotAnim }) => {
     }}>
 
 
-      <Image style={styles.lock} source={require('../Icons/Lock1.png')} />
+      <Image style={styles.lock} source={require('../assets/lock1.png')} />
 
       <View style={{
         backgroundColor: node.special === 'freezer' ? 'white' : 'dimgrey',
@@ -118,6 +118,7 @@ const Frozen = ({ node, rotAnim }) => {
 
 const NodeView = (props) => {
 
+  //console.log(props.node.toString())
   const rotAnim = useRef(new Animated.Value(0)).current
   const measureRef = useRef(null)
   useEffect(() => {
@@ -136,7 +137,10 @@ const NodeView = (props) => {
   const colorStyles = borderStyles(props.node.colors)
 
   return (
-    <Animated.View ref={measureRef} style={[
+    <Animated.View 
+    ref={measureRef} 
+    
+    style={[
       styles.nodeSize,
       borderSize(props.node.diameter),
       colorStyles,
@@ -153,20 +157,10 @@ const NodeView = (props) => {
 
       onLayout={(event) => {
         measure(measureRef, props.node, props.afterUpdate)
-        //props.node.pos = {x:event.nativeEvent.layout.x,y:event.nativeEvent.layout.y}
-        //console.log(`layout x: ${event.nativeEvent.layout.x}`)
 
       }}
     >
-
-      <Image source={require('../Icons/nodeTexture4.png')} style={{ position: 'absolute', width: '100%', height: '100%', borderRadius: props.node.diameter / 2, opacity: .35 }} />
-
-      <Special node={props.node} gameType={props.gameType} />
-
-      <Symbol group={props.node.symbol} diameter={props.node.diameter} frozen={props.node.frozen} freezer={props.node.special === 'freezer'} theme={props.node.theme}/>
-
-      <Frozen node={props.node} rotAnim={rotAnim} />
-
+      <Letter letter={props.node.symbol}/>
     </Animated.View>
   )
 }
@@ -181,11 +175,10 @@ const Pulse = (props) => {
   useEffect(() => {
     if (props.GOGOGO > 0) {
 
-      //console.log("pulsing")
       fadeAnim.setValue(1)
       sizeAnim.setValue(1)
-      const scaleBy = 1.35 //props.isFinish? 1.35 :  1.35
-      const duration = 500//props.isFinish ? 500 * (1.95 / 1.35) : 500
+      const scaleBy = 1.35 
+      const duration = 500
 
       Animated.parallel([
      
@@ -285,10 +278,3 @@ const styles = StyleSheet.create({
 })
 
 export { NodeView, Pulse, dynamicNodeSize, dynamicNodeSizeNoPosition }
-
-//      <View style={{ alignSelf: 'flex-end', width: width - 1, height: 2, backgroundColor: 'rgb(36,36,36)', position: 'absolute', top: '55%', right: 1, borderRadius: 2 }} />
-
-// //      <View style={{
-//   width: width - 1, height: 2, backgroundColor: 'rgb(36,36,36)', position: 'absolute', alignSelf:
-//   'flex-start', top: '55%', left: 1, borderRadius: 5
-// }} />

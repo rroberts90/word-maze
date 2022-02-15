@@ -5,8 +5,7 @@ import { InfoHeader } from './Header'
 import { PuzzleButton } from './NavigationButtons'
 import { getItem,intializeLevelProgress } from '../Storage'
 
-const packInfo = require('../PremadeBoardStuff/Output/packInfo.json')
-
+const packInfo = {}
 const getNextPuzzle = (currentLevel, levelProgress)=> {
     let foundPuzzle = null
     let current = currentLevel
@@ -44,7 +43,6 @@ const LevelPicker = ({navigation, route}) => {
     },[renderOnArrival])
 
     //setupPuzzles()
-    const count = packInfo.count
 
     return (<View style={styles.container}>
         <InfoHeader title={'Puzzle Packs'} navigation= {navigation}/>
