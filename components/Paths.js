@@ -101,8 +101,10 @@ const Segment = ({startNode,endPoint, fixedColor}) => {
 }
 
 const getFixedStyles = (startNode, endNode) => {
- const width = startNode.diameter/ 5
- const rotatedColors = rotateColors(startNode.colors, startNode.rot)
+
+
+ const width = startNode.diameter/ 7;
+ const rotatedColors = rotateColors(startNode.colors, startNode.rot);
 
   if(startNode.gridPos.row < endNode.gridPos.row){  // below
     const startPos1 = centerOnNode(startNode.pos,  startNode.diameter)
@@ -112,7 +114,7 @@ const getFixedStyles = (startNode, endNode) => {
    
     return {
       backgroundColor: rotatedColors[2],
-      top: startPos.y,
+      top: startPos.y - startNode.diameter,
       left: startPos.x,
       width: width,
       height: length
@@ -127,7 +129,7 @@ const getFixedStyles = (startNode, endNode) => {
     
     return {
       backgroundColor: rotatedColors[0],
-      top: startPos.y,
+      top: startPos.y - startNode.diameter,
       left: startPos.x,
       width: width,
       height: length
@@ -135,13 +137,13 @@ const getFixedStyles = (startNode, endNode) => {
   }
   else if(startNode.gridPos.col > endNode.gridPos.col){ // going left
     const startPos1 = centerOnNode(endNode.pos,  endNode.diameter)
-    const startPos = point(startPos1.x, startPos1.y - width/2)
+    const startPos = point(startPos1.x, startPos1.y)
 
     const length = Math.abs(endNode.pos.x - startNode.pos.x)
     
     return {
       backgroundColor: rotatedColors[3],
-      top: startPos.y,
+      top: startPos.y -startNode.diameter + startNode.diameter / 20,
       left: startPos.x,
       width: length,
       height: width
@@ -149,19 +151,20 @@ const getFixedStyles = (startNode, endNode) => {
   }
   else if(startNode.gridPos.col < endNode.gridPos.col){ // going right
     const startPos1 = centerOnNode(startNode.pos,  startNode.diameter)
-    const startPos = point(startPos1.x, startPos1.y - width/2)
+    const startPos = point(startPos1.x, startPos1.y )
 
     const length = Math.abs(endNode.pos.x - startNode.pos.x)
     
     return {
       backgroundColor: rotatedColors[1],
-      top: startPos.y,
+      top: startPos.y - startNode.diameter + startNode.diameter / 20,
       left: startPos.x,
       width: length,
       height: width
     }
   }
 }
+
 
 const getTransformStyles = (start , end, arrowWidth )=> { 
   if(start.row < end.row){

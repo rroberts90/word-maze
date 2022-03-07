@@ -1,5 +1,5 @@
 import React, { useEffect,useState, useRef } from 'react'
-import {StyleSheet, View, Image, Text} from 'react-native'
+import {StyleSheet, View, Image, Text, Animated} from 'react-native'
 
 import { point, convertToLayout } from '../Utils'
 
@@ -24,8 +24,17 @@ import { point, convertToLayout } from '../Utils'
   
 
 
-  const Letter = ({letter}) => {
-    return <Text style={styles.letter} allowFontScaling={true}>{letter}</Text>
+  const Letter = ({letter, rotAnim}) => {
+    return <Animated.Text style={[styles.letter ,
+      {
+      transform: [{
+        rotate: rotAnim.interpolate({
+          inputRange: [0, 360],
+          outputRange: ['0deg', '-360deg']
+        })
+      }]
+    }]} allowFontScaling={true} >{letter}
+    </Animated.Text>
   }
   
   const ArrowPadding = 1
@@ -126,6 +135,20 @@ const shouldAddArrow = (node, neighbor) => {
 
   }
 
+  const positionLetterInNode = (node) =>{
+    return {top: node.pos.y - node.diameter/2 , 
+      left: node.pos.x + node.diameter/2}
+  }
+  const FixedSymbols = ({grid}) => { 
+    const nodes = grid.reduce((flat, row) => [...flat, ...row])
+
+    return (<View style={{position:'absolute', height:'100%', width: '100%'}}> 
+
+                {
+          nodes.map((node, i)=> <View style={[{position: 'absolute'}, positionLetterInNode(node)]} key={i}><Letter letter={node.symbol} /></View>) 
+        }
+      </View>)
+  }
   const Arrows = ({grid}) => {
     
       const flat = grid.reduce((flat, row) => [...flat, ...row])
@@ -185,4 +208,4 @@ const shouldAddArrow = (node, neighbor) => {
 
   })
   
-  export { Letter,Arrows}
+  export { Letter,Arrows, FixedSymbols}

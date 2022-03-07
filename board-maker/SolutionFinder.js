@@ -1,4 +1,4 @@
-import {   randInt, rotateArray}  from '../Utils.js'
+import {   logGridPos, randInt, rotateArray}  from '../Utils.js'
 
 // rotates nextNode initial color position until computed(current) position is a match 
 // between curr and nextNode.
@@ -51,9 +51,10 @@ const selectCandidates = (curr, criteria, visitedNodes) => {
     let candidates //= [...curr.neighbors]
     let extras = []
 
-    candidates = curr.neighbors.map(node => {
-        return node
-    })
+
+        candidates = curr.neighbors.filter(node => {
+            return node
+        })
     
 
     // if (criteria && criteria.circles) {
@@ -66,10 +67,13 @@ const selectCandidates = (curr, criteria, visitedNodes) => {
 
     //     }
     // }
+    if(criteria.mode=== 'goto') {
+        extras = hopStepToNode(curr, criteria.finish)
+
+    }
 
     candidates = [...candidates, ...extras]
-    // if on false path filter for finish 
-
+  
     return candidates
 }
 
@@ -84,9 +88,41 @@ const shouldStartFalsePath = (visitedNodes, criteria)=> {
   
 }
 
+const hopStepToNode = (curr,finish) => {
+
+        let neighbors = []
+        const closestRow = Math.sign(finish.gridPos.row - curr.gridPos.row) + curr.gridPos.row; 
+        const closestCol = Math.sign(finish.gridPos.col - curr.gridPos.col ) + curr.gridPos.col;
+        
+
+        if(curr.gridPos.row === finish.gridPos.row){ // direct row case
+
+             neighbors = curr.neighbors.filter(node=> node.gridPos.row === curr.gridPos.row && node.gridPos.col === closestCol)
+
+        } else if(curr.gridPos.col === finish.gridPos.col) { // direct col case
+             neighbors = curr.neighbors.filter(node=> node.gridPos.col === curr.gridPos.col && node.gridPos.row === closestRow)
+
+        } else {
+
+             neighbors = curr.neighbors.filter(node=> 
+                (node.gridPos.row === curr.gridPos.row && node.gridPos.col === closestCol) 
+                ||(node.gridPos.col === curr.gridPos.col && node.gridPos.row === closestRow)  )
+            
+        }
+
+        neighbors = neighbors.filter(node=> node !== curr)
+    return [...neighbors, ...neighbors]
+
+ }
 // returns true if the pathing algorithm visited all the nodes in board's current word
 const isWordPathed = (board) => {
     const {currentWord, visitedNodes}= board;
+
+   // console.log('isWordPathed')
+
+    // visitedNodes.forEach(node=> logGridPos('vistedNode', node.gridPos))
+   // currentWord.nodes.forEach(node=> logGridPos('wordNodes', node.gridPos))
+
     if(visitedNodes.length < currentWord.letters.length) { 
         return false
     }
@@ -96,15 +132,28 @@ const isWordPathed = (board) => {
             return false
         }
     }
+
     return true
 }
 
 const pathFinder = (board, criteria) => {
     let { visitedNodes, finish, currentWord} = board
     let curr = visitedNodes[visitedNodes.length - 1]
-
-    if (isWordPathed(board)) { // we are done here
-        return true
+    //board.steps++
+   
+    if (criteria.mode === 'goto') { 
+        if(criteria.finish === curr) {
+            console.log('got to end')
+            // now switch
+            //criteria.mode = 'wordpath'
+            return true
+        }
+    }
+    if(criteria.mode === 'wordpath'){
+        // now we need the whole word pathed to stop
+        if(isWordPathed(board) ){
+            return true
+        }
     }
 
     // const createFalsePath = shouldStartFalsePath(visitedNodes, criteria)
@@ -133,21 +182,23 @@ const pathFinder = (board, criteria) => {
 
         let candidates = selectCandidates(curr, criteria,visitedNodes)
      
+
         // pick one neighbor to visit next
         while (candidates.length > 0) {
-          
+           
             const randomIndex = Math.floor(Math.random() * candidates.length)
             const candidate = candidates[randomIndex]
             if (board.isPathOpen(curr, candidate)) {
 
                 // if candidate already matches, great. No need to meddle.
                 if (curr.isMatch(candidate)) {
-
+                    
                     const isGoodCandidate = visit(board, visitedNodes, candidate, criteria)
                     if (!isGoodCandidate) {
                         candidates = candidates.filter(node => node !== candidate)
                     }
                     else {
+
                         return true
                     }
                 }
@@ -158,11 +209,12 @@ const pathFinder = (board, criteria) => {
 
                     const isGoodCandidate = visit(board, visitedNodes, candidate, criteria)
 
-
                     if (!isGoodCandidate) {
                         candidates = candidates.filter(node => node !== candidate)
                     }
                     else {
+
+
                         return true
                     }
                 }
@@ -172,11 +224,13 @@ const pathFinder = (board, criteria) => {
             }
             else { // can't be a match bc path between node and candidate already exists
                 candidates = candidates.filter(node => node !== candidate)
+
             }
         }
       
         // no candidates left and board not finished. 
         board.removeLast()
+
         return false
     
 }

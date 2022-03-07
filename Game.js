@@ -45,7 +45,7 @@ const Game = ({ navigation, route }) => {
       const seedWords4 = ['cowboy','boy','range','howdy','partner']
       const seedWords5 = ['irate','interim','trim','grit','trist']
 
-      ref.current = buildBoard(seedWords5, 1);
+      ref.current = buildBoard(seedWords, 1);
     }
 
     return ref.current

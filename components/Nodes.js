@@ -51,7 +51,7 @@ const dynamicNodeSize = (diameter, tutorial) => {
 const borderSize = (diameter) => {
   return {
     borderRadius: diameter / 2.25,
-    borderWidth: Math.floor(diameter / 9) + .5
+    borderWidth: Math.floor(diameter / 10) + .5
   }
 }
 
@@ -160,7 +160,7 @@ const NodeView = (props) => {
 
       }}
     >
-      <Letter letter={props.node.symbol}/>
+      <Letter letter={props.node.symbol} rotAnim={rotAnim}/>
     </Animated.View>
   )
 }
