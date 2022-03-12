@@ -5,7 +5,7 @@ import { Pulse } from './Nodes'
 import GridView from './Grid'
 import { Cursor } from './UserInput'
 import DemoCursor from './DemoCursor'
-import { point, centerOnNode, logGridPos, rotateColors, logPoint } from '../Utils'
+import { point, centerOnNode, logGridPos, rotateColors } from '../Utils'
 import { UserPath } from './Paths'
 import useInterval from '../custom-hooks/UseInterval.js'
 import { levelUp, getItem, storeItem } from '../Storage'
@@ -54,7 +54,6 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
 
   const addLineSegment = (node, next) => {
 
- 
     const seg = {
       startNode: node,
       endNode: next,
@@ -215,7 +214,7 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
   return (
 
     <View style={[styles.container]} >
-    <InfoHeader navigation={navigation} title={''} />   
+    <InfoHeader navigation={navigation} title={'The Daily'} />   
 
       <UserPath segments={lineSegments.current} fades={fadeSegments.current} />
 

@@ -64,8 +64,8 @@ const cssTrickTriangles = (color, length) => {
 }
 const borderSize = (diameter) => {
   return {
-    borderRadius: diameter / 2,
-    borderWidth: Math.floor(diameter / 15) 
+    borderRadius: diameter / 2.25,
+    borderWidth: Math.floor(diameter / 9) + .5
   }
 }
 
@@ -123,10 +123,7 @@ const NodeView = (props) => {
 
       }}
     >
-      {testLetters.map(
-        (letter,i)=><Letter letter={letter} rotAnim={rotAnim} key={i} quad={i} node={props.node} />
-        )}
-        <CenterCircle node={props.node}/>
+      <Letter letter={props.node.symbol}/>
     </Animated.View>
   )
 }

@@ -70,26 +70,24 @@ const buildBoard = (seedWords, difficulty) => {
 
         setupWords(board,seedWords, criteria)
 
+        //setupLinkedNeighbors(board, criteria);
+        board.resetGrid()
 
-        // for(let i= 0;i< board.words.length;i++) {    
-        //     board.resetGrid()
-   
-        //     board.currentWord = board.words[i]
-        //     console.log(`current word: ${board.currentWord.letters}`)
+        board.grid.forEach((row) => row.forEach(node => {
+            node.usedInWord = false 
+          }))
 
-        //     board.steps = 0
-        //     criteria.mode  = 'goto'
-        //     criteria.finish = board.currentWord.nodes[0]
-        //     const finished = pathFinder(board, criteria)
-        //     if(!finished) {  // if we can't get a solution to a word try again
-        //         console.log('NO SOLUTION')
-        //         break;
-        //     }
-        //     board.words[i].solution = board.visitedNodes.map(node=>node)
-        //     // lock in place 
-        //     board.words[i].nodes.forEach(node=> node.usedInWord=true)
+        for(let i= 0;i< board.words.length;i++) {       
+            board.currentWord = board.words[i]
+            const finished = pathFinder(board, criteria)
+            if(!finished) {  // if we can't get a solution to a word try again
+                break;
+            }
+            board.words[i].solution = board.visitedNodes.map(node=>node)
+            // lock in place 
+            board.words[i].nodes.forEach(node=> node.usedInWord=true)
 
-        // }
+        }
         realCount++
 
    }

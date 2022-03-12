@@ -68,10 +68,8 @@ const Segment = ({startNode,endPoint, fixedColor}) => {
 }
 
 const getFixedStyles = (startNode, endNode) => {
-
-
- const width = startNode.diameter/ 11;
- const rotatedColors = rotateColors(startNode.colors, startNode.rot);
+ const width = startNode.diameter/ 5
+ const rotatedColors = rotateColors(startNode.colors, startNode.rot)
 
   if(startNode.gridPos.row < endNode.gridPos.row){  // below
     const startPos1 = centerOnNode(startNode.pos,  startNode.diameter)
@@ -104,7 +102,7 @@ const getFixedStyles = (startNode, endNode) => {
   }
   else if(startNode.gridPos.col > endNode.gridPos.col){ // going left
     const startPos1 = centerOnNode(endNode.pos,  endNode.diameter)
-    const startPos = point(startPos1.x, startPos1.y)
+    const startPos = point(startPos1.x, startPos1.y - width/2)
 
     const length = Math.abs(endNode.pos.x - startNode.pos.x)
     return {
@@ -117,7 +115,7 @@ const getFixedStyles = (startNode, endNode) => {
   }
   else if(startNode.gridPos.col < endNode.gridPos.col){ // going right
     const startPos1 = centerOnNode(startNode.pos,  startNode.diameter)
-    const startPos = point(startPos1.x, startPos1.y )
+    const startPos = point(startPos1.x, startPos1.y - width/2)
 
     const length = Math.abs(endNode.pos.x - startNode.pos.x)
     
@@ -130,7 +128,6 @@ const getFixedStyles = (startNode, endNode) => {
     }
   }
 }
-
 
 const getTransformStyles = (start , end, arrowWidth )=> { 
   if(start.row < end.row){

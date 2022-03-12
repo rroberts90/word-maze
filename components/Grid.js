@@ -4,7 +4,6 @@ import { Segment } from './Paths'
 
 import { NodeView } from "./Nodes"
 import { point } from "../Utils"
-import { FixedSymbols } from "./Symbols"
 
 const GridView = ({board, won, afterUpdate, triggerPulser}) => {
 
@@ -19,7 +18,6 @@ const GridView = ({board, won, afterUpdate, triggerPulser}) => {
     )
 
   })
-//      <FixedSymbols grid={board.grid}/>
 
   return (
     <Animated.View style={styles.board2} onStartShouldSetResponder={()=> true} onResponderGrant={()=>triggerPulser(pulser=> pulser+1)}>
