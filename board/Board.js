@@ -66,10 +66,9 @@ const getAllNeighbors = (numRow, numCol)  => {
       if (boardData) {
         this.loadSave(boardData);
       }else{
-        this.grid = createEmptyGrid(6,4);
+        this.grid = createEmptyGrid(5,3);
         this.visitedNodes = [];
         this.words = [];
-        this.solutions = [];
         this.setupNeighbors(this.grid.length, this.grid[0].length);
 
       }
@@ -206,18 +205,15 @@ const getAllNeighbors = (numRow, numCol)  => {
         node.fixed = false 
         node.rot = 0
       }))
-      this.visitedNodes = [this.start]
       
-      this.start.fixed = true
   
       this.grid.forEach((row) => row.forEach(node =>  {
-          node.frozen = 0
           node.direction=-1}
           ))
     }
     resetWords() {
       this.grid.forEach((row) => row.forEach(node => {
-        node.usedInWord = false 
+        node.usedInWord = [false, false, false,false] 
       }))
 
       this.words = []
@@ -250,13 +246,11 @@ const getAllNeighbors = (numRow, numCol)  => {
     save(){
       //prevents cyclical refs
       const visitedNodes = this.visitedNodes.map(node=> compressGridPos(node.gridPos))
-      const solutions = this.solutions.map(node=> compressGridPos(node.gridPos))
     
       return {
         grid:this.grid.map(row=>row.map(node => node.save())),
-        start: this.start.gridPos,
         visitedNodes: visitedNodes,
-        solutions: solutions,
+        words: this.words,
         pathLength: this.pathLength
       
       }
@@ -283,7 +277,6 @@ const getAllNeighbors = (numRow, numCol)  => {
       
       this.setupNeighbors(this.grid.length, this.grid[0].length);
   
-      this.start = this.getNodeFromGridPos(savedBoard.start);
 
       this.visitedNodes = savedBoard.visitedNodes.map(rawGridPos => this.getNodeFromGridPos(unCompressGridPos(rawGridPos)));
       this.solutions = savedBoard.solutions.map(rawGridPos => this.getNodeFromGridPos(unCompressGridPos(rawGridPos)));

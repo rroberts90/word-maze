@@ -18,7 +18,8 @@ const colorScheme1 =
 
 const globals =  {colorScheme: colorScheme1, 
     defaultBackground: defaultBackground2,
-    defaultNodeColor: lavenderblush
+    defaultNodeColor: lavenderblush,
+    defaultBorderColor: "rgba(47, 127, 183,1)"
 }
 
 export default globals

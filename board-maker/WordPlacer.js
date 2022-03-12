@@ -1,4 +1,4 @@
-import { rotateArray, randInt, rotateColors, logGridPos, gridPos } from '../Utils.js'
+import { rotateArray, randInt, rotateLetters, logGridPos, gridPos } from '../Utils.js'
 import Word from '../board/Word'
 
 const MaxWordPackTries = 10
@@ -10,37 +10,6 @@ class WordPackError extends Error {
     }
 }
 
-const addLinks = (board) => {
-  
-    const { alphabet } = createAlphabet()
-
-    const alphabetDict = {}
-    alphabet.forEach(letter => alphabetDict[letter] = [])
-
-
-    // first pass fill frequency dict
-    for (let i = 0; i < board.grid.length; i++) {
-        for (let j = 0; j < board.grid[0].length; j++) {
-            const node = board.grid[i][j]
-            if (node.symbol) {
-
-                alphabetDict[node.symbol] = [...alphabetDict[node.symbol], node]
-            }
-
-        }
-    }
-
-    for (let i = 0; i < board.grid.length; i++) {
-        for (let j = 0; j < board.grid[0].length; j++) {
-            // add links to node
-            const node = board.grid[i][j]
-            if(node.symbol) { 
-            node.links = alphabetDict[node.symbol].filter(otherNode => node !== otherNode)
-            }
-
-        }
-    }
-}
 
 // returns array and dict
 const createAlphabet = () => {
@@ -54,7 +23,7 @@ const createAlphabet = () => {
     return { alphabet, alphabetDict }
 }
 
-// adds letters to all unfixed nodes
+// adds letters to all nodes
 // TODO: pick from frequency table
 const fillWithLetters = (board) => {
     const { alphabet } = createAlphabet()
@@ -62,10 +31,12 @@ const fillWithLetters = (board) => {
     for (let i = 0; i < board.grid.length; i++) {
         for (let j = 0; j < board.grid[0].length; j++) {
             const node = board.grid[i][j]
-            if (!node.fixed || board.start === node) {
+            for(let k = 0; k < 4; k++) { // add 4 random letters
+
                 const ndx = randInt(0, alphabet.length)
                 const letter = alphabet[ndx]
-                node.symbol = letter
+                node.letters = [...node.letters, letter]
+
             }
         }
     }
@@ -103,17 +74,7 @@ const addSeedWords = (board, seedWords) => {
     // start with longest word. 
     const sortedWords = seedWords.sort((word1, word2) => word2.length - word1.length).map(word=> word.toUpperCase())
 
-    /* bop around the grid. start at random unfixed node
-     if there is no way to fit the word into a candidate square
-     (this will occur when all neighbors have fixed letters that do not match the next letter in word)
-     reject and go back look for new candidate square.
-     if all squares have been checked, get new start position.
-     if all start positions have been checked, throw error 
-     
-     notes: can pack more words in faster if we try to use fixed squares with matching letters.
-     * similiar recursive algorith to pathFinder, make sure to resit fixed nodes. using same property for both
-     * use visitedNodes to store progress, reset after each word. this should work? it's possible that it will over pack and words will be unreachable.
-     */
+
     placeWords(board, sortedWords, 0)
 
 }
@@ -163,11 +124,9 @@ const placeWord = (board, word) => {
     // copy of visited nodes array. visited nodes as we create words contains just nodes comprising current word
     const nodes = board.visitedNodes.map(node => node)
     // don't know solution yet so pass [] to wordObj
-    const wordObj = new Word(word, nodes, [])
+    const wordObj = new Word(word)
     board.words.push(wordObj)
     
-    // mark nodes
-    nodes.forEach(node=> node.usedInWord = true)
 
 }
 
@@ -183,28 +142,22 @@ const isCandidate = (node, letter) => {
     }
 }
 
-// // returns true if node is in the nodes list of one of the board already placed worded
-// const nodeIsFixed = (board, node) => { 
-//   //  !board.words.map(word => word.nodes).reduce((r, arr) => [...r, ...arr]).includes(current)
-//   if(board.words.length === 0){ 
-//       return false; // anything goes nothing added yet
-//   }else{
-//       const includes = board.words.map(word => word.nodes).reduce((r, arr) => [...r, ...arr]).includes(node)
-
-
-//   }
-// }
+/**
+ Idea 
+ - treat board as grid of letters
+ - each step should visit a node which means placing 2 letters
+ - can't reuse letter positions.
+ - visited nodes must have concept of visited positions (used in word array)
+ -
+ */
 
 const placeLetters = (board, remainingLetters) => {
     const { visitedNodes } = board
-    console.log(`\n`)
    
     const current = visitedNodes[visitedNodes.length - 1]
 
     logGridPos('current',current.gridPos )
     console.log(`remaining letters: ${remainingLetters}`)
-    current.symbol = remainingLetters[0]
-    current.fixed = true
 
     if (remainingLetters.length > 1) {
 
@@ -244,7 +197,6 @@ const placeLetters = (board, remainingLetters) => {
     }else{
         throw Error('idk what is going on here. ngl')
     }
-
 }
 
 const logWordPositions = (board) => {
@@ -253,20 +205,18 @@ const logWordPositions = (board) => {
         word.nodes.forEach(node=> {
             logGridPos(node.symbol || 'no letter', node.gridPos)
         })
-        console.log('\n')
+        //console.log('\n')
     })
 }
 
 const setupWords = (board, seedWords, criteria) => {
 
-    addSeedWords(board, seedWords)
-
-
     fillWithLetters(board)
+
+    addSeedWords(board, seedWords)
 
     logWordPositions(board)
 
-    addLinks(board)
 
 }
 

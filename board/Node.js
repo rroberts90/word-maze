@@ -5,20 +5,16 @@ const Default_Node_Width = 0
 
 const colorScheme = Globals.colorScheme;
 
-const getColors = (colorSet) => {
-  return Object.entries(colorSet).map((arr) => arr[1])
-}
-
 class Node {
 
   constructor(savedNode) {
     if (savedNode) {
-      this.loadSave(saveNNode)
+      this.loadSave(savedNode)
     }
     else {
       this.gridPos = Utils.gridPos(0, 0)
       this.pos = Utils.point(0, 0)
-      this.colors = getColors(colorScheme)
+      this.letters = []
       this.rot = 0
       this.neighbors = [] // Adjacent Nodes 
       this.diameter = Default_Node_Width
@@ -26,13 +22,14 @@ class Node {
       this.direction =  -1 // rotation direction
       this.fixed = false // if node is in visited nodes list can't rotate
       this.symbol = null
-      this.special = null
       this.frozen = 0
+
+      this.usedInWord = [false,false,false,false]
     }
   }
 
 
-  // if the node is rotatable (not in the line's path) change colors + direction
+  // if the node is rotatable (not in the line's path) change rotation + direction
   rotate(reverse) {
     const direction = reverse ? -this.direction : this.direction
     if (!this.fixed && this.frozen == 0) {
@@ -41,7 +38,6 @@ class Node {
   }
 
   rotateLinked(reverse) {
-
     this.links.forEach(node => node.rotate(reverse))
   }
 
@@ -52,14 +48,14 @@ class Node {
     const neighbor = this.insideNeighbor(point)
     if (neighbor) {
 
-      const matchColor = this.isMatch(neighbor)
-      if (neighbor && matchColor) {
-        return { candidate: neighbor, matchColor: matchColor }
-      }
+      //const matchColor = this.isMatch(neighbor)
+        return { candidate: neighbor, matchColor: null }
+      
     }
     return { candidate: null, matchColor: null }
 
   }
+
   insideNeighbor(point) {
     return this.neighbors.find(neighbor => Utils.pointPastCircle(point, this, neighbor));
   }
@@ -68,31 +64,30 @@ class Node {
     return this.neighbors.find(neighbor => neighbor === node)
   }
 
-  isMatch(node) {
-    let match = null
+  addLetter(node) {
 
-    // get computed colors
-    const compNodeRotatedColors = Utils.rotateColors(node.colors, node.rot)
-    const myNodeRotatedColors = Utils.rotateColors(this.colors, this.rot)
+    // get computed letters
+    const matchNodeRotatedLetters = Utils.rotateLetters(node.letters, node.rot)
 
-    // node is a neighbor. must be above/below/left/right
     if (node.gridPos.row > this.gridPos.row) {
-      // below current node. bottom == top
-      match = compNodeRotatedColors[0] == myNodeRotatedColors[2] ? myNodeRotatedColors[2] : null
+      // below current node.
+      return matchNodeRotatedLetters[0]
     }
     else if (node.gridPos.row < this.gridPos.row) {
-      // above of current node. top == bottom
-      match = compNodeRotatedColors[2] == myNodeRotatedColors[0] ? myNodeRotatedColors[0] : null
+      // above of current node. 
+      return matchNodeRotatedLetters[2]
     }
     else if (node.gridPos.col > this.gridPos.col) {
-      // right of current node. left == right
-      match = compNodeRotatedColors[3] == myNodeRotatedColors[1] ? myNodeRotatedColors[1] : null
+      // right of current node. 
+      return matchNodeRotatedLetters[3]
     }
     else if (node.gridPos.col < this.gridPos.col) {
-      // left of current node. right == left
-      match = compNodeRotatedColors[1] == myNodeRotatedColors[3] ? myNodeRotatedColors[3] : null
+      // left of current node. 
+      return matchNodeRotatedLetters[4]
+     }
+    else {
+      throw Error('No neighbor found')
     }
-    return match
   }
 
   save() {
@@ -101,7 +96,7 @@ class Node {
 
     const saved = {
       g: Utils.compressGridPos(this.gridPos),
-      c: this.colors.map(color => color.replace('rgba', '')),
+      lt: this.letters.map,
       l: links
     }
 
@@ -127,7 +122,7 @@ class Node {
     this.gridPos = Utils.unCompressGridPos(savedNode.g);
 
     this.symbol = savedNode.s || null;
-    this.colors = savedNode.c.map(rawColor => 'rgba' + rawColor);
+    this.letters = savedNode.lt;
     this.special = savedNode.sp || null;
 
 
@@ -145,32 +140,12 @@ class Node {
 
   }
 
-
-  freezeLinks() {
-    this.links.forEach(linkedNode => {
-      if (linkedNode.symbol === this.symbol) {
-        linkedNode.frozen++
-      }
-    })
-
-  }
-
-  unFreezeLinks() {
-    this.links.forEach(linkedNode => {
-      if (linkedNode.symbol === this.symbol) {
-        linkedNode.frozen--
-      }
-    })
-
-  }
-
-
   toString() {
     //return `Node: (row: ${this.gridPos.row}, col:${this.gridPos.col} )`
     return JSON.stringify({
       gridPos: this.gridPos,
       symbol: this.symbol,
-      colors: this.colors,
+      letters: this.letters,
       links: this.links.map(node => node.gridPos)
 
     })

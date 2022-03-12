@@ -62,17 +62,6 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
     lineSegments.current = [...lineSegments.current, seg]
   }
 
-  useInterval(() => {
-
-    if (getBoard().getCurrentNode() === getBoard().start) {
-      triggerPulser(currentValue => currentValue + 1)
-    }
-    setDefaultPulser(defaultPulser + 1)
-    return () => {
-      triggerPulser(0)
-      setDefaultPulser(0)
-    }
-  }, 5000)
 
   // sets the endPointto the CurrentNode position after it's position is measurable.
   const updateAfterLayout = () => {

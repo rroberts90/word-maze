@@ -1,47 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react'
 import {StyleSheet, View, Animated,Easing, useWindowDimensions} from 'react-native'
+import Globals from '../Globals'
 
-import { distance, centerOnNode,rotateColors,convertToLayout, point } from '../Utils'
+import { distance, centerOnNode,rotateLetters,convertToLayout, point, logPoint } from '../Utils'
 
 
 const toDegrees = (angle) =>{
     return angle * (180 / Math.PI)
   }
 
-
-const calculateColor = (node, endPoint) => {
-   
-    const center = centerOnNode(node.pos, node.diameter)
-   
-    const hypo  = distance(endPoint.x - center.x, endPoint.y - center.y)
-    const adj = distance(endPoint.x - center.x, 0)
-    const angle = toDegrees(Math.acos(adj/ hypo))
- 
-    const xDir = Math.sign(endPoint.x - center.x)
-    const yDir = Math.sign(endPoint.y - center.y)
-   
-    let color
-    const computedColors = rotateColors(node.colors, node.rot)
-    
-    
-    if(xDir == 1 &&  angle < 45) {
-      color = computedColors[1]
-    }
-    else if(xDir == -1 && angle < 45) {
-      color = computedColors[3]
-    }
-    else if( yDir == -1 && angle >= 45) {
-      color = computedColors[0]
-    }
-    else if(yDir == 1 && angle >= 45){
-      color = computedColors[2]
-    }
-    else {
-      color = "grey"
-    }
-  
-    return color
-  }
 
 const Fade = (props) => {
   
@@ -71,13 +38,13 @@ const Segment = ({startNode,endPoint, fixedColor}) => {
       return null
     }
 
-    const color = fixedColor || calculateColor(startNode, endPoint )
+    const color =  Globals.defaultBorderColor
     
     const startPos = centerOnNode(startNode.pos,  startNode.diameter)
     const endPos  = endPoint 
     
     const scaleX = distance(endPos.x - startPos.x, endPos.y - startPos.y)
-    const scaleY = startNode.diameter / 5 // line width
+    const scaleY = startNode.diameter / 11 // line width
 
     const opp = endPoint.y - startPos.y
     const xDir = Math.sign(endPoint.x - startPos.x)
@@ -86,7 +53,7 @@ const Segment = ({startNode,endPoint, fixedColor}) => {
     const rotate = `${angle}deg`
     return (<View style={[styles.dot, 
                          convertToLayout(startPos),
-                        { backgroundColor: color,
+                        { backgroundColor: Globals.defaultBorderColor,
                          transform: [ 
                           { rotate: rotate },
                           { translateX: scaleX/2 },
@@ -103,7 +70,7 @@ const Segment = ({startNode,endPoint, fixedColor}) => {
 const getFixedStyles = (startNode, endNode) => {
 
 
- const width = startNode.diameter/ 7;
+ const width = startNode.diameter/ 11;
  const rotatedColors = rotateColors(startNode.colors, startNode.rot);
 
   if(startNode.gridPos.row < endNode.gridPos.row){  // below
@@ -113,7 +80,7 @@ const getFixedStyles = (startNode, endNode) => {
     const length = Math.abs(endNode.pos.y - startNode.pos.y)
    
     return {
-      backgroundColor: rotatedColors[2],
+      backgroundColor:  Globals.defaultBorderColor,
       top: startPos.y - startNode.diameter,
       left: startPos.x,
       width: width,
@@ -128,7 +95,7 @@ const getFixedStyles = (startNode, endNode) => {
     const length = Math.abs(endNode.pos.y - startNode.pos.y)
     
     return {
-      backgroundColor: rotatedColors[0],
+      backgroundColor:  Globals.defaultBorderColor,
       top: startPos.y - startNode.diameter,
       left: startPos.x,
       width: width,
@@ -140,10 +107,9 @@ const getFixedStyles = (startNode, endNode) => {
     const startPos = point(startPos1.x, startPos1.y)
 
     const length = Math.abs(endNode.pos.x - startNode.pos.x)
-    
     return {
-      backgroundColor: rotatedColors[3],
-      top: startPos.y -startNode.diameter + startNode.diameter / 20,
+      backgroundColor:  Globals.defaultBorderColor,
+      top: startNode.pos.y -startNode.diameter/4 - width/2,
       left: startPos.x,
       width: length,
       height: width
@@ -156,8 +122,8 @@ const getFixedStyles = (startNode, endNode) => {
     const length = Math.abs(endNode.pos.x - startNode.pos.x)
     
     return {
-      backgroundColor: rotatedColors[1],
-      top: startPos.y - startNode.diameter + startNode.diameter / 20,
+      backgroundColor:  Globals.defaultBorderColor,
+      top: startNode.pos.y -startNode.diameter/4 - width/2,
       left: startPos.x,
       width: length,
       height: width
@@ -279,5 +245,5 @@ const Arrow2 = ({moveAnim, width}) => {
         }
   })
 
-  export {Segment, UserPath, Fade, calculateColor}
+  export {Segment, UserPath, Fade}
 

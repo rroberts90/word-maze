@@ -28,10 +28,7 @@ const measure = (ref, node, afterUpdate) => {
 
 const borderStyles = (colors) => {
   return {
-    borderTopColor: colors[0],
-    borderRightColor: colors[1],
-    borderBottomColor: colors[2],
-    borderLeftColor: colors[3],
+    borderColor:  Globals.defaultBorderColor
   }
 }
 
@@ -47,11 +44,28 @@ const dynamicNodeSize = (diameter, tutorial) => {
     alignItems: 'center',
   }
 }
-
+const cssTrickTriangles = (color, length) => {
+  return {
+    width: 0,
+    height: 0,
+    borderTopWidth: length,
+    borderTopColor: color,
+    borderLeftColor: color,
+    borderLeftWidth: length,
+    borderRightColor: color,
+    borderRightWidth: length,
+    borderBottomColor: color,
+    borderBottomWidth: length,
+    borderTopLeftRadius: length,
+    borderTopRightRadius: length,
+    borderBottomRightRadius: length,
+    borderBottomLeftRadius: length
+  }
+}
 const borderSize = (diameter) => {
   return {
-    borderRadius: diameter / 2.25,
-    borderWidth: Math.floor(diameter / 10) + .5
+    borderRadius: diameter / 2,
+    borderWidth: Math.floor(diameter / 15) 
   }
 }
 
@@ -60,60 +74,8 @@ const dynamicNodeSizeNoPosition = (diameter) => {
     width: diameter,
     height: diameter,
     borderRadius: diameter / 2,
-    borderWidth: Math.floor(diameter / 6) + .5
+    borderWidth: Math.floor(diameter / 15)
   }
-}
-
-const Frozen = ({ node, rotAnim }) => {
-
-  const width = (node.diameter - node.diameter / 12 - 10) / 2
-  const fadeAnim = useRef(new Animated.Value(0)).current
-
-  useEffect(() => {
-    if (node.frozen === 0) {
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 1000,
-        useNativeDriver: true,
-        easing: Easing.Quad
-      }).start()
-    }
-    else if (node.frozen > 0) {
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-        easing: Easing.Quad
-      }).start()
-    }
-  }, [node.frozen])
-
-  return (
-    <Animated.View style={{
-      position: 'absolute', opacity: fadeAnim, transform: [{
-        rotate: rotAnim.interpolate({
-          inputRange: [0, 360],
-          outputRange: ['0deg', '-360deg']
-        })
-      }]
-    }}>
-
-
-      <Image style={styles.lock} source={require('../assets/lock1.png')} />
-
-      <View style={{
-        backgroundColor: node.special === 'freezer' ? 'white' : 'dimgrey',
-        opacity: .2,
-        width: node.diameter + 1,
-        height: node.diameter + 1,
-        borderWidth: node.diameter / 6,
-        borderRadius: node.diameter / 2,
-        borderColor: node.special === 'freezer' ? 'white' : 'dimgrey'
-      }}>
-
-      </View>
-
-    </Animated.View>)
 }
 
 const NodeView = (props) => {
@@ -136,6 +98,7 @@ const NodeView = (props) => {
 
   const colorStyles = borderStyles(props.node.colors)
 
+  const testLetters = ['A','C', 'R', 'P']
   return (
     <Animated.View 
     ref={measureRef} 
@@ -144,7 +107,7 @@ const NodeView = (props) => {
       styles.nodeSize,
       borderSize(props.node.diameter),
       colorStyles,
-      { backgroundColor: props.node.special === 'freezer' ? 'rgb(80,80,80)' : defaultNodeColor },
+      { backgroundColor: defaultNodeColor },
       {
         transform: [{
           rotate: rotAnim.interpolate({
@@ -160,11 +123,29 @@ const NodeView = (props) => {
 
       }}
     >
-      <Letter letter={props.node.symbol} rotAnim={rotAnim}/>
+      {testLetters.map(
+        (letter,i)=><Letter letter={letter} rotAnim={rotAnim} key={i} quad={i} node={props.node} />
+        )}
+        <CenterCircle node={props.node}/>
     </Animated.View>
   )
 }
 
+const ndxToColor = (ndx) => {
+  if(typeof(ndx) === 'number'){
+  return Object.entries(Globals.colorScheme).map(entry=> entry[1])[ndx]
+  }
+  else {
+    return 'grey'
+  }
+}
+const CenterCircle = ({node})=> {
+  const [color, setColor] = useState(()=> ndxToColor(node.symbol))
+  
+  return <View style={[styles.centerCircle,{ borderRadius: '50%',
+    backgroundColor:color}]}/>
+
+}
 
 const Pulse = (props) => {
   const fadeAnim = useRef(new Animated.Value(0)).current
@@ -227,7 +208,7 @@ const Pulse = (props) => {
 
 const styles = StyleSheet.create({
   nodeSize: {
-    height: '80%',
+    height: '85%',
     aspectRatio: 1,
     backgroundColor: "rgb(220,220,220)",
     zIndex: 10,
@@ -273,6 +254,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     top: '15%',
     opacity: 1,
+  },
+  centerCircle: {
+    position: 'absolute',
+    height: '30%',
+    width: '30%'
+
   }
 })
 

@@ -1,7 +1,7 @@
 import React, { useEffect,useState, useRef } from 'react'
 import {StyleSheet, View, Image, Text, Animated} from 'react-native'
 
-import { point, convertToLayout } from '../Utils'
+import { point, convertToLayout, centerOnNode, logPoint } from '../Utils'
 
   const getArrowSource = (arrow) => { 
     let source = ''
@@ -24,10 +24,31 @@ import { point, convertToLayout } from '../Utils'
   
 
 
-  const Letter = ({letter, rotAnim}) => {
+  const Letter = ({letter, rotAnim, quad, node}) => {
+  
+    const diameter = node.diameter
+    const center = centerOnNode(node.pos, diameter)
+   // logPoint('node pos', node.pos)
+    //logPoint(' node center', center )
+    let x =diameter / 3.5
+    let y =diameter / 3.5
+
+    if(quad === 0 || quad === 2){
+      x = 0
+    }
+    if(quad === 1 || quad === 3) {
+      y = 0
+    }
+    if(quad === 0) { 
+      y = -y
+    }
+    if(quad === 3) {
+      x = -x
+    }
+
     return <Animated.Text style={[styles.letter ,
       {
-      transform: [{
+      transform: [{translateX: x},{translateY:y},{
         rotate: rotAnim.interpolate({
           inputRange: [0, 360],
           outputRange: ['0deg', '-360deg']
@@ -202,6 +223,7 @@ const shouldAddArrow = (node, neighbor) => {
         opacity: .25
       },
       letter: {
+        position:'absolute',
         fontSize: 30,
         textDecorationLine: 'none'
       }
