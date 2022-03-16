@@ -25,12 +25,7 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
   const [win, setWin] = useState(() => false)
 //  console.log(getBoard().getCurrentNode().toString())
 
-  const [currentNode, setCurrentNode] = useState(() => { 
-    if(!getBoard().getCurrentNode()) {
-      throw Error('No current node')
-    }
-    
-    return getBoard().getCurrentNode() })
+  const [currentNode, setCurrentNode] = useState(() => getBoard().getCurrentNode())
 
   const lineSegments = useRef([])
   const fadeSegments = useRef([])
@@ -42,15 +37,6 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
   const [loading, toggleLoading] = useState(true)
 
   const { play } = useSound()
-
-  useEffect(() => {
-
-      resetCurrentNode(1600)
-    
-
-    setDefaultPulser(0)
-    lineSegments.current = []
-  }, [])
 
   const addLineSegment = (node, next) => {
 
@@ -64,9 +50,7 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
 
   // sets the endPointto the CurrentNode position after it's position is measurable.
   const updateAfterLayout = () => {
-
-    resetCurrentNode(1)
-
+    resetCurrentNode()
 
   }
 
@@ -137,10 +121,10 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
 
   }
 
-  const currPosF = currentNode.pos
+  const currPosF = currentNode?.pos 
 
-  const currX = currentNode.pos.x
-  const currY = currentNode.pos.y
+  const currX = currentNode?.pos.x || 0
+  const currY = currentNode?.pos.y || 0
 
   function resetCurrentNode(makePulseWait) {
 
@@ -165,23 +149,7 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
 
   async function onHint() {
 
-    const board = getBoard()
-    const { removeCount, nextNode } = getBoard().hint()
-
-    const duration = 300
-    for (var i = 0; i< removeCount; i++) {
-      onUndo()
-      await sleep(duration)
-    }
-
-    const prev = getBoard().getCurrentNode()
-    const { next } = getBoard().visitNode(nextNode)
-
-    if (next === null) {
-      throw 'solution is not accurate'
-    }
-    updateNodeBundle(next, prev, true)
-    return removeCount * duration + 500
+    return null
   }
 
   function onUndo(button) {
@@ -219,16 +187,16 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
       <UserPath segments={lineSegments.current} fades={fadeSegments.current} />
 
       <Pulse pos={currPosF} 
-      colors={rotateColors(currentNode.colors, currentNode.rot)} 
+      colors={[Globals.defaultBorderColor,Globals.defaultBorderColor,Globals.defaultBorderColor,Globals.defaultBorderColor ]} 
       GOGOGO={pulser} 
-      diameter={currentNode.diameter} />
-
+      diameter={currentNode?.diameter || 0} />
+   
       <Cursor node={currentNode} 
       currPoint={point(currX, currY)} 
       triggerPulser={triggerPulser} 
       detectMatch={detectMatch} 
       intervalId={intervalId} />
-    
+
       <GridView board={getBoard()} 
       afterUpdate={updateAfterLayout} 
       height={height} won={win} 

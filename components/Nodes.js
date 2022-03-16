@@ -44,28 +44,11 @@ const dynamicNodeSize = (diameter, tutorial) => {
     alignItems: 'center',
   }
 }
-const cssTrickTriangles = (color, length) => {
-  return {
-    width: 0,
-    height: 0,
-    borderTopWidth: length,
-    borderTopColor: color,
-    borderLeftColor: color,
-    borderLeftWidth: length,
-    borderRightColor: color,
-    borderRightWidth: length,
-    borderBottomColor: color,
-    borderBottomWidth: length,
-    borderTopLeftRadius: length,
-    borderTopRightRadius: length,
-    borderBottomRightRadius: length,
-    borderBottomLeftRadius: length
-  }
-}
+
 const borderSize = (diameter) => {
   return {
-    borderRadius: diameter / 2.25,
-    borderWidth: Math.floor(diameter / 9) + .5
+    borderRadius: diameter / 2,
+    borderWidth: Math.floor(diameter / 15) 
   }
 }
 
@@ -83,6 +66,7 @@ const NodeView = (props) => {
   //console.log(props.node.toString())
   const rotAnim = useRef(new Animated.Value(0)).current
   const measureRef = useRef(null)
+ 
   useEffect(() => {
 
     Animated.timing(rotAnim, {
@@ -136,11 +120,16 @@ const ndxToColor = (ndx) => {
     return 'grey'
   }
 }
+
 const CenterCircle = ({node})=> {
   const [color, setColor] = useState(()=> ndxToColor(node.symbol))
   
-  return <View style={[styles.centerCircle,{ borderRadius: '50%',
-    backgroundColor:color}]}/>
+  return <View style={[
+    styles.centerCircle,
+    {
+      borderRadius: '50%',
+      backgroundColor: color
+    }]} />
 
 }
 
@@ -186,6 +175,9 @@ const Pulse = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.GOGOGO])
 
+  if(!props.pos) {
+    return null
+  }
   return <Animated.View
     style={[
       dynamicNodeSizeNoPosition(props.diameter),

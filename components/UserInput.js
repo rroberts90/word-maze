@@ -64,7 +64,7 @@ const Cursor = (props) => {
       })
     ).current
 
-    const segment =   <Segment startNode= {props.node} endPoint={endPoint}/>
+    const segment =   props.node ? <Segment startNode= {props.node} endPoint={endPoint}/>  : null
     return (<>   
       <Animated.View
     style={[{
@@ -74,7 +74,7 @@ const Cursor = (props) => {
       left: props.currPoint.x,
       margin: 0,
       zIndex: 11
-    }, dynamicNodeSizeNoPosition(props.node.diameter,0), styles.cursor]}
+    }, dynamicNodeSizeNoPosition(props.node?.diameter || 0,0), styles.cursor]}
     {...panResponder.panHandlers}
    >
     </Animated.View>

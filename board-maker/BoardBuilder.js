@@ -73,21 +73,6 @@ const buildBoard = (seedWords, difficulty) => {
         //setupLinkedNeighbors(board, criteria);
         board.resetGrid()
 
-        board.grid.forEach((row) => row.forEach(node => {
-            node.usedInWord = false 
-          }))
-
-        for(let i= 0;i< board.words.length;i++) {       
-            board.currentWord = board.words[i]
-            const finished = pathFinder(board, criteria)
-            if(!finished) {  // if we can't get a solution to a word try again
-                break;
-            }
-            board.words[i].solution = board.visitedNodes.map(node=>node)
-            // lock in place 
-            board.words[i].nodes.forEach(node=> node.usedInWord=true)
-
-        }
         realCount++
 
    }

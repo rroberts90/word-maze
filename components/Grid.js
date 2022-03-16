@@ -12,7 +12,7 @@ const GridView = ({board, won, afterUpdate, triggerPulser}) => {
       <View style={styles.row} key={i}>
         {row.map((node, j) => <NodeView node={node}
           key={j}
-          afterUpdate={board.getCurrentNode() === node ? afterUpdate : null}
+          afterUpdate={i === 5 && j === 3 ? afterUpdate : null}
     />)}
       </View>
     )

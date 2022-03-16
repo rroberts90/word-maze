@@ -66,7 +66,7 @@ const getAllNeighbors = (numRow, numCol)  => {
       if (boardData) {
         this.loadSave(boardData);
       }else{
-        this.grid = createEmptyGrid(5,3);
+        this.grid = createEmptyGrid(6,4);
         this.visitedNodes = [];
         this.words = [];
         this.setupNeighbors(this.grid.length, this.grid[0].length);
@@ -203,13 +203,9 @@ const getAllNeighbors = (numRow, numCol)  => {
     resetGrid() {
       this.grid.forEach((row) => row.forEach(node => {
         node.fixed = false 
-        node.rot = 0
       }))
-      
-  
-      this.grid.forEach((row) => row.forEach(node =>  {
-          node.direction=-1}
-          ))
+    
+      this.visitedNodes = []
     }
     resetWords() {
       this.grid.forEach((row) => row.forEach(node => {
@@ -220,26 +216,7 @@ const getAllNeighbors = (numRow, numCol)  => {
       this.currentWord = null
     }
 
-    /**
-     * user requests hint. 
-     * compare visitedNodes to solution. 
-     * when visitedNodes[i] !== solution[i]. stop. 
-     * remove all nodes after i from visitedNodes. Add solution[i] to visited nodes
-     */
     hint(){
-      let ndx = 0
-      //const solution = this.solution.map(node=>node.toString()).join('\n')
-      //const visitedNodes = this.visitedNodes.map(node=>node.toString()).join('\n')
-
-      while(this.visitedNodes[ndx] === this.solution[ndx]) {
-        ndx++
-      }
-
-      const removeCount = this.visitedNodes.filter((node, i)=> i>=ndx).length
-
-      const nextNode = this.solution[ndx]
-
-      return {removeCount, nextNode}
 
     }
 
@@ -279,7 +256,6 @@ const getAllNeighbors = (numRow, numCol)  => {
   
 
       this.visitedNodes = savedBoard.visitedNodes.map(rawGridPos => this.getNodeFromGridPos(unCompressGridPos(rawGridPos)));
-      this.solutions = savedBoard.solutions.map(rawGridPos => this.getNodeFromGridPos(unCompressGridPos(rawGridPos)));
       
     }
   

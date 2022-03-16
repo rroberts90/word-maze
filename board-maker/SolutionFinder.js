@@ -107,30 +107,6 @@ const pathFinder = (board, criteria) => {
         return true
     }
 
-    // const createFalsePath = shouldStartFalsePath(visitedNodes, criteria)
-    // if(createFalsePath) {
-    //     criteria.onFalsePath = true
-    //     criteria.falsePathsRemaining--
-
-    //     //logGridPos('------\nstart of false path', curr.gridPos)
-    //     criteria.falsePathLength =  randInt(criteria.maxFalsePathLength/2, criteria.maxFalsePathLength+1) +1
-    //     //console.log(`falsePath Length: ${criteria.falsePathLength}`)
-    //     criteria.steps = 0
-    // }
-
-    // else if(criteria && criteria.onFalsePath) {
-    //     criteria.steps++
-    //     if(criteria.steps > criteria.falsePathLength) {
-    //         // go back
-    //         Array.from({length:criteria.steps-1}, ()=> board.removeLast())
-    //         curr = visitedNodes[visitedNodes.length-1]
-    //         //logGridPos('returned to start of false Path', curr.gridPos)
-    //         criteria.onFalsePath = false
-    //         //console.log('-------')
-    //     }
-    // }
-
-
         let candidates = selectCandidates(curr, criteria,visitedNodes)
      
         // pick one neighbor to visit next

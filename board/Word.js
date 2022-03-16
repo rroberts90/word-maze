@@ -2,15 +2,15 @@ import { compressGridPos } from "../Utils"
 
 // contains all pertanent data about word. Its letters, location nodes, solution nodes,
 class Word {
-    constructor(letters) {
+    constructor(letters, nodes) {
         this.letters = letters
-        //this.nodes = nodes
+        this.nodes = nodes
     }
 
     save() {
         const save = {
             lt: this.letters,
-           // n: this.nodes.map(node=> compressGridPos(node.gridPos)),
+            n: this.nodes.map(node=> compressGridPos(node.gridPos)),
 
         }
     }

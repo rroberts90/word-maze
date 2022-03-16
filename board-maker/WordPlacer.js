@@ -35,7 +35,7 @@ const fillWithLetters = (board) => {
 
                 const ndx = randInt(0, alphabet.length)
                 const letter = alphabet[ndx]
-                node.letters = [...node.letters, letter]
+                node.symbol = letter
 
             }
         }
@@ -124,10 +124,9 @@ const placeWord = (board, word) => {
     // copy of visited nodes array. visited nodes as we create words contains just nodes comprising current word
     const nodes = board.visitedNodes.map(node => node)
     // don't know solution yet so pass [] to wordObj
-    const wordObj = new Word(word)
+    const wordObj = new Word(word, nodes)
     board.words.push(wordObj)
     
-
 }
 
 // nodes are candidates if they are not fixed or are fixed and have a matching letter
@@ -158,6 +157,8 @@ const placeLetters = (board, remainingLetters) => {
 
     logGridPos('current',current.gridPos )
     console.log(`remaining letters: ${remainingLetters}`)
+    current.symbol = remainingLetters[0]
+    current.fixed = true
 
     if (remainingLetters.length > 1) {
 
@@ -167,7 +168,9 @@ const placeLetters = (board, remainingLetters) => {
         while (candidates.length > 0) {
             const candidate = candidates[randInt(0, candidates.length)]
             board.visitedNodes = [...visitedNodes, candidate]
+            
             const isGoodCandidate = placeLetters(board, remainingLetters.slice(1))
+           
             if (isGoodCandidate) {
                 return true
             } else {

@@ -14,7 +14,6 @@ class Node {
     else {
       this.gridPos = Utils.gridPos(0, 0)
       this.pos = Utils.point(0, 0)
-      this.letters = []
       this.rot = 0
       this.neighbors = [] // Adjacent Nodes 
       this.diameter = Default_Node_Width
@@ -122,7 +121,6 @@ class Node {
     this.gridPos = Utils.unCompressGridPos(savedNode.g);
 
     this.symbol = savedNode.s || null;
-    this.letters = savedNode.lt;
     this.special = savedNode.sp || null;
 
 
@@ -145,7 +143,6 @@ class Node {
     return JSON.stringify({
       gridPos: this.gridPos,
       symbol: this.symbol,
-      letters: this.letters,
       links: this.links.map(node => node.gridPos)
 
     })

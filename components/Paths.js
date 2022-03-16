@@ -129,24 +129,6 @@ const getFixedStyles = (startNode, endNode) => {
   }
 }
 
-const getTransformStyles = (start , end, arrowWidth )=> { 
-  if(start.row < end.row){
-    return [{translateY: -arrowWidth/4},{rotate: '225deg'}]
-  }
-  if(start.row > end.row){//up
-    return [{translateY: arrowWidth/4},{rotate: '45deg'}]
-  }
-  if(start.col > end.col) {
-    return [{translateX: arrowWidth/4},{rotate: '-45deg'}]
-  }
-  else{
-    return [{translateX: -arrowWidth/4},{rotate: '-225deg'}]
-  }
-}
-
-//      <View style={[arrowStyles(arrowWidth, arrowWidth, 'rgba(255,255,255,.5)' ), styles.lightener,{transform: transformStyles}]} />
-//    const transformStyles = getTransformStyles(startNode.gridPos, endNode.gridPos, arrowWidth)
-
 const FixedSegment = ({startNode, endNode}) => {
     
     const fixedStyles = getFixedStyles(startNode, endNode)
