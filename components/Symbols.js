@@ -180,7 +180,7 @@ const shouldAddArrow = (node, neighbor) => {
       },
       letter: {
         position:'absolute',
-        fontSize: 30,
+        fontSize: 35,
         textDecorationLine: 'none'
       }
 

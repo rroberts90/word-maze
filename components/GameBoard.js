@@ -50,7 +50,7 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
 
   // sets the endPointto the CurrentNode position after it's position is measurable.
   const updateAfterLayout = () => {
-    resetCurrentNode()
+    resetCurrentNode(100)
 
   }
 
@@ -58,13 +58,12 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
    Sets a new current node. 
    Adds segment to previous node
   */
-  const updateNodeBundle = (next, node, hint) => {
+  const updateNodeBundle = (next, node) => {
 
     const prevNode = node
     setCurrentNode(next)
 
     addLineSegment(prevNode, next)
-
 
     triggerPulser(currentValue => currentValue + 1)
 
@@ -87,39 +86,39 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
 
 
     } else {
-      play(hint ? 'button' : 'connect')
+      play('connect')
 
     }
   }
 
-  function detectMatch(point) {
+  function detectMatch(currentNode,point) {
+
 
     const node = getBoard().getCurrentNode()
+    if(!node) {
+      // start of new word
 
-    const { candidate } = node.matchPoint(point)
+      getBoard().currentNode = currentNode
+    }
+
+    const  candidate  = node ? node.matchPoint(point) : null
 
     if (candidate) {
 
       const { next, prev } = getBoard().visitNode(candidate)
       if (next) {
-
         updateNodeBundle(next, node)
-        return { newNode: next, prevPoint: null }
+        return next
       }
       else if (prev) {
         onUndo()
-        return { newNode: null, prevPoint: prev.pos }
+        return prev
+      }else {
+        return null
       }
-      else {
-        return { newNode: null, prevPoint: null }
-
-      }
-    } else {
-
-      return { newNode: null, prevPoint: null }
-    }
 
   }
+}
 
   const currPosF = currentNode?.pos 
 
@@ -191,16 +190,14 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
       GOGOGO={pulser} 
       diameter={currentNode?.diameter || 0} />
    
-      <Cursor node={currentNode} 
-      currPoint={point(currX, currY)} 
-      triggerPulser={triggerPulser} 
-      detectMatch={detectMatch} 
-      intervalId={intervalId} />
 
       <GridView board={getBoard()} 
       afterUpdate={updateAfterLayout} 
       height={height} won={win} 
-      triggerPulser={triggerPulser} />
+      triggerPulser={triggerPulser} 
+      detectMatch={detectMatch}
+      
+      />
 
       <ButtonsBar undoEl={undoEl} restartEl={restartEl} hintEl={hintEl} />
     </View>

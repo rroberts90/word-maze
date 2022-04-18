@@ -1,32 +1,34 @@
-import React, {useRef, useState } from "react"
+import React, {useRef, useState, useEffect } from "react"
 import { Animated, PanResponder, StyleSheet} from "react-native"
-import {dynamicNodeSizeNoPosition} from './Nodes'
+import { dynamicNodeSizeNoPosition } from "../node-size"
 import {  Segment } from "./Paths"
 import * as MyMath from '../Utils'
 
-const Cursor = (props) => {
-    const mostRecentPoint = useRef(null)
+const Cursor = ({node, triggerPulser, detectMatch}) => {
+
+    // const [currX, setCurrX]= useState(()=>0)
+    // const [currY, setCurrY]= useState(()=>0)
+
     const [endPoint, setEndPoint] = useState(null)
+    const [currentNode, setCurrentNode] = useState(()=> node) 
 
     const pan = useRef(new Animated.ValueXY()).current
 
-    
     const panResponder = useRef(
       PanResponder.create({
         onStartShouldSetPanResponder: () => {
-          //pulseFlag.current = pulseFlag.current + 1
           return true
         },
 
         onMoveShouldSetPanResponder: () => true,
   
         onPanResponderGrant: (evt, gestureState) => {
-          clearInterval(props.intervalId.current)
-          const centeredEndPoint = MyMath.point(gestureState.x0, gestureState.y0)
+          console.log('granting\n')
+
+          const centeredEndPoint = MyMath.point(gestureState.x0, gestureState.y0) 
           setEndPoint(centeredEndPoint)
           
-          mostRecentPoint.current = centeredEndPoint
-          props.triggerPulser(current=> current+1)
+          triggerPulser(current=> current+1)
 
           pan.setOffset({
             x: pan.x._value,
@@ -40,10 +42,12 @@ const Cursor = (props) => {
           setEndPoint(point)
          
           // check for intersections with other nodes
-          const {newNode, prevPoint} = props.detectMatch(point)
-          if(newNode){
-            mostRecentPoint.current = point
-            
+          const nextNode = detectMatch(currentNode,point)
+
+          if(nextNode) {
+            console.log('GOT NEXT NODE')
+
+           // setCurrentNode(nextNode)
           }
  
           return Animated.event(
@@ -56,25 +60,22 @@ const Cursor = (props) => {
         },
         onPanResponderRelease: (evt, gestureState) => {
          
-          const centeredEndPoint = mostRecentPoint.current///MyMath.point(gestureState.x0, gestureState.y0) //MyMath.centerOnNode(MyMath.point(props.currX, props.currY), props.node.diameter )
           setEndPoint(null)
-
+          setCurrentNode(node)
           pan.setValue({ x: 0, y: 0 })
         }
       })
     ).current
 
-    const segment =   props.node ? <Segment startNode= {props.node} endPoint={endPoint}/>  : null
-    return (<>   
-      <Animated.View
+    const segment =   node ? <Segment startNode= {currentNode} endPoint={endPoint}/>  : null
+
+return (<>   
+        <Animated.View
     style={[{
       transform: [{ translateX: pan.x }, { translateY: pan.y }],
-      position: "absolute",
-      top: props.currPoint.y,
-      left: props.currPoint.x,
       margin: 0,
       zIndex: 11
-    }, dynamicNodeSizeNoPosition(props.node?.diameter || 0,0), styles.cursor]}
+    }, dynamicNodeSizeNoPosition(), styles.cursorTest]}
     {...panResponder.panHandlers}
    >
     </Animated.View>
@@ -86,10 +87,9 @@ const Cursor = (props) => {
   }
 
   const styles = StyleSheet.create({
-    cursor: {
-        backgroundColor: "rgba(0,0,0,.5)",
-        borderColor: "rgba(255,255,255,.5)",
-        opacity:0
+
+    cursorTest: {
+        backgroundColor: "rgba(10,50,10,.5)",
       },
     }
   )

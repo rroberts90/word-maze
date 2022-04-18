@@ -47,11 +47,12 @@ class Node {
     const neighbor = this.insideNeighbor(point)
     if (neighbor) {
 
-      //const matchColor = this.isMatch(neighbor)
-        return { candidate: neighbor, matchColor: null }
+        return neighbor
       
     }
-    return { candidate: null, matchColor: null }
+    else {
+      return null
+    }
 
   }
 

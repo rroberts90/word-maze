@@ -6,8 +6,6 @@ const lavenderblush = 'rgba(255,242,245,1)'
 const whitesmoke = 'rgb(245,245,245)'
 const beige = 'rgb(245,245,220)'
 
-
-
 const colorScheme1 =
 {
   one: "rgba(231, 48, 110,1)", // magenta
@@ -18,7 +16,7 @@ const colorScheme1 =
 
 const globals =  {colorScheme: colorScheme1, 
     defaultBackground: defaultBackground2,
-    defaultNodeColor: lavenderblush,
+    defaultNodeColor: whitesmoke,
     defaultBorderColor: "rgba(47, 127, 183,1)"
 }
 

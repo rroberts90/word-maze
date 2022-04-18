@@ -32,7 +32,7 @@ const Fade = (props) => {
 }
 
 
-const Segment = ({startNode,endPoint, fixedColor}) => {
+const Segment = ({startNode,endPoint, fixedColor, originalNode}) => {
 
   if (startNode === null  || endPoint === null){
       return null
@@ -51,9 +51,13 @@ const Segment = ({startNode,endPoint, fixedColor}) => {
     const angle = xDir > 0 ? toDegrees(Math.asin(opp/ scaleX)) : 180 - toDegrees(Math.asin(opp/ scaleX)) // scaleX is also hypotenuse
 
     const rotate = `${angle}deg`
+    // const topDiff = startNode.pos.y - originalNode.pos.y
+    // const leftDiff = startNode.pos.x - originalNode.pos.x
     return (<View style={[styles.dot, 
-                         convertToLayout(startPos),
+
                         { backgroundColor: Globals.defaultBorderColor,
+                          top: startNode.diameter / 2,
+                          left: startNode.diameter /2,
                          transform: [ 
                           { rotate: rotate },
                           { translateX: scaleX/2 },

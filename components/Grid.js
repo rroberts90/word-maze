@@ -3,31 +3,64 @@ import React, { useEffect, useRef, useState } from "react"
 import { Segment } from './Paths'
 
 import { NodeView } from "./Nodes"
+import { Cursor } from './UserInput'
+import Wheel from './Wheel'
 import { point } from "../Utils"
+import { clickProps } from "react-native-web/dist/cjs/modules/forwardedProps"
 
-const GridView = ({board, won, afterUpdate, triggerPulser}) => {
+const GridView = ({board, afterUpdate, triggerPulser, detectMatch}) => {
 
-  const rows = board.grid.map((row, i) => {
+  /*const rows = board.grid.map((row, i) => {
     return (
       <View style={styles.row} key={i}>
         {row.map((node, j) => <NodeView node={node}
           key={j}
           afterUpdate={i === 5 && j === 3 ? afterUpdate : null}
     />)}
+
       </View>
     )
 
-  })
+  })*/
+  const rows = [0,2,4]
+  const cols = [0,2]
+  const wheels = rows.map(row=> {
+    return (
+      <View style={styles.row} key={row}>
+        {cols.map(col => {
+          return (<Wheel key={col}>
+            {[[0, 0], [0, 1], [1, 0], [1, 1]].map((offset, i) => {
+              const [rowOffset, colOffset] = offset
+              const node = board.grid[rowOffset+row][colOffset + col]
+    
+              return <NodeView node={node}
+                key={i}
+
+                detectMatch = {detectMatch}
+                triggerPulser = {triggerPulser}
+                
+              />
+
+            })}
+          </Wheel>
+          )
+        })}
+
+      </View>
+    )
+
+  } )
+
+ 
 
   return (
-    <Animated.View style={styles.board2} onStartShouldSetResponder={()=> true} onResponderGrant={()=>triggerPulser(pulser=> pulser+1)}>
+    <View style={styles.board2} >
 
       <View style={styles.grid}>
-        {rows}
+        {wheels}
       </View>
 
-
-    </Animated.View>
+    </View>
     )
   }
 
@@ -50,7 +83,6 @@ const GridView = ({board, won, afterUpdate, triggerPulser}) => {
       justifyContent: 'space-evenly',
       alignItems: 'center', 
       alignSelf: 'center',
-      flex: 1,
     }
 
 

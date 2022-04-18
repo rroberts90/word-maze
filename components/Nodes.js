@@ -3,17 +3,18 @@ import React, { useEffect, useRef, useState } from "react"
 
 import { Letter } from './Symbols'
 
-
 import Globals from '../Globals'
-import { convertToLayout } from "../Utils"
-
+import { convertToLayout, point } from "../Utils"
+import { dynamicNodeSizeNoPosition } from "../node-size"
+import { Cursor } from './UserInput'
 const defaultNodeColor = Globals.defaultNodeColor
 
 const measure = (ref, node, afterUpdate) => {
   if (ref.current) {
     ref.current.measureInWindow((x, y, width, height) => {
         
-      node.pos = { x: x, y: y }
+      node.pos.x = x
+      node.pos.y = y
       node.diameter = Math.floor(width)
 
       if (afterUpdate) {
@@ -52,16 +53,8 @@ const borderSize = (diameter) => {
   }
 }
 
-const dynamicNodeSizeNoPosition = (diameter) => {
-  return {
-    width: diameter,
-    height: diameter,
-    borderRadius: diameter / 2,
-    borderWidth: Math.floor(diameter / 15)
-  }
-}
 
-const NodeView = (props) => {
+const NodeView = ({node, afterUpdate, triggerPulser, detectMatch}) => {
 
   //console.log(props.node.toString())
   const rotAnim = useRef(new Animated.Value(0)).current
@@ -70,28 +63,29 @@ const NodeView = (props) => {
   useEffect(() => {
 
     Animated.timing(rotAnim, {
-      toValue: props.node.rot * -90,
+      toValue: node.rot * -90,
       duration: 1000,
       useNativeDriver: true,
 
     }).start()
     
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.node.rot])
-
-
-  const colorStyles = borderStyles(props.node.colors)
-
-  const testLetters = ['A','C', 'R', 'P']
+  }, [node.rot])
+  const currX = node.pos.x 
+  const currY = node.pos.y
   return (
     <Animated.View 
     ref={measureRef} 
     
     style={[
-      styles.nodeSize,
-      borderSize(props.node.diameter),
-      colorStyles,
-      { backgroundColor: defaultNodeColor },
+      styles.node,
+      { backgroundColor: defaultNodeColor,
+        borderColor:  Globals.defaultBorderColor,
+        borderRadius: Math.round(useWindowDimensions().width + useWindowDimensions().height) /2,
+        width: useWindowDimensions().width * .2,
+        height: useWindowDimensions().width * .2,
+        borderWidth: 5,
+      },
       {
         transform: [{
           rotate: rotAnim.interpolate({
@@ -103,11 +97,19 @@ const NodeView = (props) => {
     ]}
 
       onLayout={(event) => {
-        measure(measureRef, props.node, props.afterUpdate)
+        measure(measureRef, node, afterUpdate)
 
       }}
-    >
-      <Letter letter={props.node.symbol}/>
+  >
+      <Cursor node={node}
+                  triggerPulser={triggerPulser}
+                  detectMatch={detectMatch}
+                  currPoint ={point(currX,currY)}
+      />
+      <View style={[styles.background]}/>
+      <Letter letter={node.symbol}/>
+
+
     </Animated.View>
   )
 }
@@ -121,17 +123,7 @@ const ndxToColor = (ndx) => {
   }
 }
 
-const CenterCircle = ({node})=> {
-  const [color, setColor] = useState(()=> ndxToColor(node.symbol))
-  
-  return <View style={[
-    styles.centerCircle,
-    {
-      borderRadius: '50%',
-      backgroundColor: color
-    }]} />
 
-}
 
 const Pulse = (props) => {
   const fadeAnim = useRef(new Animated.Value(0)).current
@@ -196,16 +188,19 @@ const Pulse = (props) => {
 
 
 const styles = StyleSheet.create({
-  nodeSize: {
-    height: '85%',
-    aspectRatio: 1,
-    backgroundColor: "rgb(220,220,220)",
-    zIndex: 10,
+  node: {
+
     justifyContent: 'center',
     alignItems: 'center',
-    margin: '1%'
+    margin: '1%',
   },
-
+  background: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundColor: Globals.defaultBackground,
+    borderRadius: 500
+  },
   nodeBorder: {
   },
 
@@ -244,12 +239,7 @@ const styles = StyleSheet.create({
     top: '15%',
     opacity: 1,
   },
-  centerCircle: {
-    position: 'absolute',
-    height: '30%',
-    width: '30%'
 
-  }
 })
 
 export { NodeView, Pulse, dynamicNodeSize, dynamicNodeSizeNoPosition }
