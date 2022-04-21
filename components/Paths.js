@@ -44,7 +44,7 @@ const Segment = ({startNode,endPoint, fixedColor, originalNode}) => {
     const endPos  = endPoint 
     
     const scaleX = distance(endPos.x - startPos.x, endPos.y - startPos.y)
-    const scaleY = startNode.diameter / 11 // line width
+    const scaleY = startNode.diameter / 8 // line width
 
     const opp = endPoint.y - startPos.y
     const xDir = Math.sign(endPoint.x - startPos.x)
@@ -73,7 +73,7 @@ const Segment = ({startNode,endPoint, fixedColor, originalNode}) => {
 
 const getFixedStyles = (startNode, endNode) => {
  const width = startNode.diameter/ 5
- const rotatedColors = rotateColors(startNode.colors, startNode.rot)
+ //const rotatedColors = rotateColors(startNode.colors, startNode.rot)
 
   if(startNode.gridPos.row < endNode.gridPos.row){  // below
     const startPos1 = centerOnNode(startNode.pos,  startNode.diameter)

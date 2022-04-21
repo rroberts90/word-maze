@@ -93,15 +93,13 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
 
   function detectMatch(currentNode,point) {
 
-
-    const node = getBoard().getCurrentNode()
-    if(!node) {
-      // start of new word
-
+    if(!getBoard().getCurrentNode() || getBoard().getCurrentNode() !== currentNode) {
+      // start new word
       getBoard().currentNode = currentNode
     }
+    const node = currentNode
 
-    const  candidate  = node ? node.matchPoint(point) : null
+    const candidate  = node.matchPoint(point) 
 
     if (candidate) {
 
@@ -185,11 +183,7 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
 
       <UserPath segments={lineSegments.current} fades={fadeSegments.current} />
 
-      <Pulse pos={currPosF} 
-      colors={[Globals.defaultBorderColor,Globals.defaultBorderColor,Globals.defaultBorderColor,Globals.defaultBorderColor ]} 
-      GOGOGO={pulser} 
-      diameter={currentNode?.diameter || 0} />
-   
+    
 
       <GridView board={getBoard()} 
       afterUpdate={updateAfterLayout} 
@@ -222,3 +216,9 @@ const styles = StyleSheet.create({
 })
 
 export default GameBoard
+
+/*  <Pulse pos={currPosF} 
+      colors={[Globals.defaultBorderColor,Globals.defaultBorderColor,Globals.defaultBorderColor,Globals.defaultBorderColor ]} 
+      GOGOGO={pulser} 
+      diameter={currentNode?.diameter || 0} />
+    */

@@ -84,7 +84,7 @@ const NodeView = ({node, afterUpdate, triggerPulser, detectMatch}) => {
         borderRadius: Math.round(useWindowDimensions().width + useWindowDimensions().height) /2,
         width: useWindowDimensions().width * .2,
         height: useWindowDimensions().width * .2,
-        borderWidth: 5,
+        borderWidth: 1,
       },
       {
         transform: [{
@@ -192,14 +192,14 @@ const styles = StyleSheet.create({
 
     justifyContent: 'center',
     alignItems: 'center',
-    margin: '1%',
+    margin: '2%',
   },
   background: {
     position: 'absolute',
     width: '100%',
     height: '100%',
     backgroundColor: Globals.defaultBackground,
-    borderRadius: 500
+    borderRadius: 200
   },
   nodeBorder: {
   },

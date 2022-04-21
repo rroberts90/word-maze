@@ -10,19 +10,33 @@ import { clickProps } from "react-native-web/dist/cjs/modules/forwardedProps"
 
 const GridView = ({board, afterUpdate, triggerPulser, detectMatch}) => {
 
-  /*const rows = board.grid.map((row, i) => {
-    return (
-      <View style={styles.row} key={i}>
-        {row.map((node, j) => <NodeView node={node}
-          key={j}
-          afterUpdate={i === 5 && j === 3 ? afterUpdate : null}
-    />)}
+  // const rows = board.grid.map((row, i) => {
+  //   return (
+  //     <View style={styles.row} key={i}>
+  //       {row.map((node, j) => <NodeView node={node}
+  //         key={j}
+  //         detectMatch = {detectMatch}
+  //         triggerPulser = {triggerPulser}    
+  //         />)}
 
-      </View>
+  //     </View>
+  //   )
+
+  // })
+
+  const nodeRows = board.grid.map((row, i) => {
+    return (
+        row.map((node, j) => <NodeView node={node}
+          key={i*6+j}
+          detectMatch = {detectMatch}
+          triggerPulser = {triggerPulser}    
+          />)
+
     )
 
-  })*/
-  const rows = [0,2,4]
+  })
+  const nodes = nodeRows.reduce((reducer, current)=> [...reducer, ...current],[])
+  /*const rows = [0,2,4]
   const cols = [0,2]
   const wheels = rows.map(row=> {
     return (
@@ -47,17 +61,16 @@ const GridView = ({board, afterUpdate, triggerPulser, detectMatch}) => {
         })}
 
       </View>
-    )
+    )*/
 
-  } )
+  //} 
 
- 
 
   return (
     <View style={styles.board2} >
 
       <View style={styles.grid}>
-        {wheels}
+        {nodes}
       </View>
 
     </View>
@@ -70,12 +83,20 @@ const GridView = ({board, afterUpdate, triggerPulser, detectMatch}) => {
       flex: 9,
       width: '100%',
       height: '100%',
-      flexDirection: 'column',
+      flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'flex-start',
+      justifyContent: 'center',
 
     }, 
 
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%'
+
+    },
 
     row: {
       flexDirection: 'row',

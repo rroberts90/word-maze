@@ -47,7 +47,7 @@ const Cursor = ({node, triggerPulser, detectMatch}) => {
           if(nextNode) {
             console.log('GOT NEXT NODE')
 
-           // setCurrentNode(nextNode)
+            setCurrentNode(nextNode)
           }
  
           return Animated.event(
