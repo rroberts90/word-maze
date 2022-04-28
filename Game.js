@@ -5,7 +5,7 @@ import { Board } from './board/Board'
 import GameBoard from './components/GameBoard'
 import ButtonsBar from './components/ButtonsBar'
 
-import { storeItem, getItem } from './Storage'
+import { storeItem, getItem } from './storage'
 
 import {InfoHeader} from './components/Header'
 import useSound from './custom-hooks/UseSound'

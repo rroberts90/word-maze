@@ -1,6 +1,6 @@
 import { Audio } from 'expo-av'
 import React, { useState, useEffect } from 'react'
-import { getItem } from '../Storage'
+import { getItem } from '../storage'
 
 
 const sounds = {

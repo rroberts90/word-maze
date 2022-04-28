@@ -3,7 +3,7 @@ import { View, Text, Button, Image, TouchableOpacity, Pressable, StyleSheet, Sta
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-import {getItem, initialize, storeItem} from './Storage'
+import {getItem, initialize, storeItem} from './storage'
 
 import Game from './Game'
 import SettingsScreen from './components/Settings'

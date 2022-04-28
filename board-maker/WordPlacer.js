@@ -1,6 +1,6 @@
 import { rotateArray, randInt, rotateLetters, logGridPos, gridPos } from '../Utils.js'
 import Word from '../board/Word'
-
+import './WordPicker'
 const MaxWordPackTries = 10
 
 class WordPackError extends Error {
@@ -143,10 +143,6 @@ const isCandidate = (node, letter) => {
 
 /**
  Idea 
- - treat board as grid of letters
- - each step should visit a node which means placing 2 letters
- - can't reuse letter positions.
- - visited nodes must have concept of visited positions (used in word array)
  -
  */
 

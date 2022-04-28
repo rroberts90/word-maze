@@ -14,31 +14,20 @@ class Node {
     else {
       this.gridPos = Utils.gridPos(0, 0)
       this.pos = Utils.point(0, 0)
-      this.rot = 0
       this.neighbors = [] // Adjacent Nodes 
       this.diameter = Default_Node_Width
       this.links = [] // If this node is reached these nodes will rotate.
-      this.direction =  -1 // rotation direction
       this.fixed = false // if node is in visited nodes list can't rotate
       this.symbol = null
-      this.frozen = 0
 
-      this.usedInWord = [false,false,false,false]
     }
   }
 
-
-  // if the node is rotatable (not in the line's path) change rotation + direction
-  rotate(reverse) {
-    const direction = reverse ? -this.direction : this.direction
-    if (!this.fixed && this.frozen == 0) {
-      this.rot += direction
-    }
+  hasUnfixedNeighbors() {
+    const unfixedNeighbors = this.neighbors.filter(node=> !node.fixed )
+    return unfixedNeighbors.length > 0
   }
 
-  rotateLinked(reverse) {
-    this.links.forEach(node => node.rotate(reverse))
-  }
 
 
   // determines if point is inside of neighbor node and is also a match.

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { View, Text, StyleSheet, Animated, Easing } from 'react-native'
 import { BackButton } from './NavigationButtons'
 import Globals from '../Globals'
-import { getItem } from '../Storage'
+import { getItem } from '../storage'
 const defaultBackground = Globals.backgroundColor
 
 const Header = ({ title1, item1, title2, item2, fontAnim, navigation }) => {

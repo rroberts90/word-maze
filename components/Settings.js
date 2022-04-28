@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { View, Text, Button, Image, Pressable, StyleSheet, ScrollView } from 'react-native'
 import useSound from '../custom-hooks/UseSound'
 
-import { clearAll, storeItem, getSettings } from '../Storage'
+import { clearAll, storeItem, getSettings } from '../storage'
 import { InfoHeader } from './Header'
 
 import Globals from '../Globals'

@@ -1,6 +1,5 @@
 import { compressGridPos } from "../Utils"
 
-// contains all pertanent data about word. Its letters, location nodes, solution nodes,
 class Word {
     constructor(letters, nodes) {
         this.letters = letters

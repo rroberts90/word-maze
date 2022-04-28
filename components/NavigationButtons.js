@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { TouchableOpacity, Image, StyleSheet, Text, View } from 'react-native'
 
-import { storeItem } from '../Storage'
+import { storeItem } from '../storage'
 import Globals from '../Globals'
 
 import useSound from '../custom-hooks/UseSound'

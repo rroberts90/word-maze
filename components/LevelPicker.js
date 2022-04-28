@@ -3,7 +3,7 @@ import {ScrollView, View, StyleSheet } from 'react-native'
 import { InfoHeader } from './Header'
 
 import { PuzzleButton } from './NavigationButtons'
-import { getItem,intializeLevelProgress } from '../Storage'
+import { getItem,intializeLevelProgress } from '../storage'
 
 const packInfo = {}
 const getNextPuzzle = (currentLevel, levelProgress)=> {
