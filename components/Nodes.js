@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { Letter } from './Symbols'
 
 import Globals from '../Globals'
-import { convertToLayout, point } from "../Utils"
+import { convertToLayout, logPoint, point } from "../Utils"
 import { dynamicNodeSizeNoPosition } from "../node-size"
 import { Cursor } from './UserInput'
 const defaultNodeColor = Globals.defaultNodeColor
@@ -12,14 +12,10 @@ const defaultNodeColor = Globals.defaultNodeColor
 const measure = (ref, node, afterUpdate) => {
   if (ref.current) {
     ref.current.measureInWindow((x, y, width, height) => {
-        
+        console.log(x)
       node.pos.x = x
       node.pos.y = y
       node.diameter = Math.floor(width)
-
-      if (afterUpdate) {
-        afterUpdate()
-      }
     })
 
   } else {
@@ -27,9 +23,9 @@ const measure = (ref, node, afterUpdate) => {
   }
 }
 
-const borderStyles = (colors) => {
+const borderStyles = (color) => {
   return {
-    borderColor:  Globals.defaultBorderColor
+    borderColor:  color ? color : Globals.defaultBorderColor
   }
 }
 
@@ -54,27 +50,14 @@ const borderSize = (diameter) => {
 }
 
 
-const NodeView = ({node, afterUpdate, triggerPulser, detectMatch}) => {
+const NodeView = ({node, triggerPulser, detectMatch}) => {
 
-  //console.log(props.node.toString())
-  const rotAnim = useRef(new Animated.Value(0)).current
   const measureRef = useRef(null)
  
-  useEffect(() => {
-
-    Animated.timing(rotAnim, {
-      toValue: node.rot * -90,
-      duration: 1000,
-      useNativeDriver: true,
-
-    }).start()
-    
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [node.rot])
   const currX = node.pos.x 
   const currY = node.pos.y
   return (
-    <Animated.View 
+    <View 
     ref={measureRef} 
     
     style={[
@@ -85,19 +68,12 @@ const NodeView = ({node, afterUpdate, triggerPulser, detectMatch}) => {
         width: useWindowDimensions().width * .2,
         height: useWindowDimensions().width * .2,
         borderWidth: 1,
-      },
-      {
-        transform: [{
-          rotate: rotAnim.interpolate({
-            inputRange: [0, 360],
-            outputRange: ['0deg', '360deg']
-          })
-        }]
       }
     ]}
 
       onLayout={(event) => {
-        measure(measureRef, node, afterUpdate)
+        setTimeout( ()=> measure(measureRef, node), 100)
+
 
       }}
   >
@@ -110,27 +86,16 @@ const NodeView = ({node, afterUpdate, triggerPulser, detectMatch}) => {
       <Letter letter={node.symbol}/>
 
 
-    </Animated.View>
+    </View>
   )
 }
-
-const ndxToColor = (ndx) => {
-  if(typeof(ndx) === 'number'){
-  return Object.entries(Globals.colorScheme).map(entry=> entry[1])[ndx]
-  }
-  else {
-    return 'grey'
-  }
-}
-
-
 
 const Pulse = (props) => {
   const fadeAnim = useRef(new Animated.Value(0)).current
   const sizeAnim = useRef(new Animated.Value(1)).current
 
 
-  const colorStyles = borderStyles(props.colors)
+  const colorStyles = borderStyles(props.color)
   useEffect(() => {
     if (props.GOGOGO > 0) {
 

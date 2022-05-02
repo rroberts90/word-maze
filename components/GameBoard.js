@@ -47,13 +47,6 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
     lineSegments.current = [...lineSegments.current, seg]
   }
 
-
-  // sets the endPointto the CurrentNode position after it's position is measurable.
-  const updateAfterLayout = () => {
-    resetCurrentNode(100)
-
-  }
-
   /** 
    Sets a new current node. 
    Adds segment to previous node
@@ -93,19 +86,14 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
 
   function detectMatch(currentNode,point) {
 
-    if(!getBoard().getCurrentNode() || getBoard().getCurrentNode() !== currentNode) {
-      // start new word
-      getBoard().currentNode = currentNode
-    }
-    const node = currentNode
 
-    const candidate  = node.matchPoint(point) 
+    const candidate  = currentNode.matchPoint(point) 
 
     if (candidate) {
 
-      const { next, prev } = getBoard().visitNode(candidate)
+      const { next, prev } = getBoard().vistNode(currentNode,candidate)
       if (next) {
-        updateNodeBundle(next, node)
+        updateNodeBundle(next, currentNode)
         return next
       }
       else if (prev) {
@@ -183,10 +171,7 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
 
       <UserPath segments={lineSegments.current} fades={fadeSegments.current} />
 
-    
-
       <GridView board={getBoard()} 
-      afterUpdate={updateAfterLayout} 
       height={height} won={win} 
       triggerPulser={triggerPulser} 
       detectMatch={detectMatch}

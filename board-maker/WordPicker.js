@@ -19,12 +19,15 @@ const getDictionary = (name, length) =>{
  * dictionary: optional.  default-4000
  * length: required
  * fixedLetters: optional. array format [{letter: chr, position: int(0-length-1) }]
+ * sameLetters: optional. format [[sameLetterPos1,sameLetterPos2], [sameLetterPos1,sameLetterPos2]]
  * 
  * } options 
  * 
  */
  const pickWord = (options) => {
-
+        
+        console.log('pick word with options:')
+        console.log(options)
         if(!options.length){
                 throw Error(`Word Length Not Specified`)
         }
@@ -38,7 +41,7 @@ const getDictionary = (name, length) =>{
         const pool = dict1.words.filter(word=> word.length === options.length)
 
         if(options.fixedLetters) {
-                const filteredPool = getWordsThatFit(pool, options.fixedLetters)
+                const filteredPool = getWordsThatFit(pool, options.fixedLetters, options.sameLetters)
                 return pickRandomWord(filteredPool)
         }else{
            return pickRandomWord(pool)
@@ -48,8 +51,8 @@ const getDictionary = (name, length) =>{
         
 }
 
-const getWordsThatFit =(pool, fixedLetters) => {
-        const filteredPool = pool.filter(word=> {
+const getWordsThatFit =(pool, fixedLetters, sameLetters) => {
+        const filteredPool = pool.filter(word=> { // filter for words with fixed letters
 
                 const checked = fixedLetters
                 .filter(letterObj => word[letterObj.position] === letterObj.letter)
@@ -59,6 +62,16 @@ const getWordsThatFit =(pool, fixedLetters) => {
                 }else {
                         return false
                 }
+        })
+        .filter(word=> { // filter for words with the same letters in multiple positions
+                const checked = sameLetters.filter(letterArr=> word[letterArr[0]] === word[letterArr[1]])
+
+                if(checked.length === sameLetters.length) {
+                        return true
+                }else{
+                        return false
+                }
+                
         })
         return filteredPool
 }

@@ -4,6 +4,10 @@ import { dynamicNodeSizeNoPosition } from "../node-size"
 import {  Segment } from "./Paths"
 import * as MyMath from '../Utils'
 
+/**
+ * handles user touch on nodes. Fixed to one node, will follow users uninterupted touch to 
+ * other nodes, reverts to original on release
+ *  */
 const Cursor = ({node, triggerPulser, detectMatch}) => {
 
     // const [currX, setCurrX]= useState(()=>0)
@@ -11,6 +15,8 @@ const Cursor = ({node, triggerPulser, detectMatch}) => {
 
     const [endPoint, setEndPoint] = useState(null)
     const [currentNode, setCurrentNode] = useState(()=> node) 
+
+    //const [originalNode, setOriginalNode] =useState(()=> node)
 
     const pan = useRef(new Animated.ValueXY()).current
 

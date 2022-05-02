@@ -64,12 +64,16 @@ const getAllNeighbors = (numRow, numCol)  => {
 
     constructor(boardData) {
       if (boardData) {
-        this.loadSave(boardData);
+        this.loadSave(boardData)
+
       }else{
-        this.grid = createEmptyGrid(6,4);
-        this.visitedNodes = [];
-        this.words = [];
-        this.setupNeighbors(this.grid.length, this.grid[0].length);
+        this.grid = createEmptyGrid(6,4)
+       
+        this.words = [] // the solution
+        this.userStrings = [] // users current board
+        this.currentStringNdx = -1 // ndx of string user is adding nodes to
+
+        this.setupNeighbors(this.grid.length, this.grid[0].length)
 
       }
 
@@ -90,72 +94,57 @@ const getAllNeighbors = (numRow, numCol)  => {
     }
 
      getCurrentNode(){
-        return this.visitedNodes[this.visitedNodes.length-1]
+        if(this.currentStringNdx >= 0) {
+          const lastNodeNdx = this.userStrings[this.currentStringNdx].length-1
+          return this.userStrings[this.currentStringNdx][lastNodeNdx]
+        }else {
+        return null
+        }
     }
+    
 
     // checks if touch hits any of the nodes
     pointInNode(pos) {
 
     }
 
-    // Checks if a line between two nodes already exists.
-    // If two nodes are adjacent in visitedNodes a line exists.
-    isPathOpen(curr, next){
-      let prevNode
-     
-      const results = this.visitedNodes.filter((node,ndx) => {
-        if(ndx === 0) {
-          prevNode = node
-        }
-        else {
-          if((curr === prevNode && next === node) || ((curr === node && next === prevNode) )) {
-            // this path is closed!
-            return true
-          }
-          prevNode = node
-        }
-      })
+    /**
+     * Creates a path from currentNode to nextNode
+     * Either add nextNode to currentString or creates new string.
+     * Create new string if - currentNode is has 0 paths,
+     * TODO add more logic
+     * @param {Node} currentNode 
+     * @param {Node} nextNode: neighbor of node
+     * @returns {next: node if adding new node, prev: node if removing a node } null: no visiting possible 
+     */
+    visitNode(currentNode, nextNode) {
 
-      if(results.length > 0) {
-        return false
-      }else{
-        return true
-      }
-    }
-    
-    connect(nextNode, visitedNodes) { // core logic to rotate nodes. 
-      this.visitedNodes = [...this.visitedNodes, nextNode]
-      nextNode.fixed = true 
-
-      if(!nextNode.special || nextNode.special==='booster') {
-        nextNode.rotateLinked()
-      } else if (nextNode.special === 'freezer'){
-        nextNode.freezeLinks()
-
-      } else if (nextNode.special === 'rotateCC') {
-        this.grid.forEach((row) => row.forEach(node => {
-          node.direction = 1
-      }))
-                nextNode.rotateLinked()
-      }
-    }
-
-    visitNode(nextNode) {
-      const curr = this.visitedNodes[this.visitedNodes.length-1]
       if(curr === nextNode) {//can't visit myself
 
-        return null
+        throw new Error('node can not visit itself')
       }
-      if(this.isPathOpen(curr, nextNode)) {
 
-        this.connect(nextNode);
-        return {next: nextNode, prev: null}
-      } 
-      else {
-        return {next: null, prev: nextNode}
+      // if path is open we're connecting, closed we're deleting
+      if(currentNode.isPathOpen(nextNode)) {
+          // is this the start of a new string? 
+              // no paths on currentNode
+              // 2 connections on current node part of different userString
+              // the previous string is also a complete word.
+          // is this a continuation of a current string? 
+            // 1 > paths to node 
+            // either end of a userString connected to currentNode
+            // if multiple strings qualify to continue, pick one most likely to be word NOTE: UNSURE ON THIS EDGE CASE
+      }else {
+        // path is closed unless we're removing nodes from a userString
+        // check if currentNode and nextNode are on same userString
+            // check if currentNode and nextNode are at either end of string
+              // horray! we can do an undo
+          // else : return null nothing to be done
+            
       }
-      
     }
+
+
 
     removeLast(){
       if(this.visitedNodes.length <= 1){
@@ -167,26 +156,7 @@ const getAllNeighbors = (numRow, numCol)  => {
       const isStillThere = this.visitedNodes.find(node=> node === current)
       current.fixed = (isStillThere) ? true : false
 
-      // if node is a freeze-node, and it is not in visitedNodes list a second time, 
-      // remove a freeze from its links
-      if(current.special == 'freezer'  ) {
-        current.unFreezeLinks()
-        
-      } else if(current.special !== 'freezer') {  // don't reverse rotate linked nodes if node is a freeze
-
-        current.rotateLinked(true) // reverse rotate
-
-      } 
-      const ccRemaining = this.visitedNodes.find(node=> node.special==='rotateCC')
-      if(current.special === 'rotateCC' && !ccRemaining ){
-        // change direction, after rotating
-        this.grid.forEach((row) => row.forEach(node => {
-          node.direction = -1
-      }))        
-      }
-      const prev = this.visitedNodes[this.visitedNodes.length-1]
-      
-
+  
       return prev
 
     }
@@ -205,8 +175,9 @@ const getAllNeighbors = (numRow, numCol)  => {
         node.fixed = false 
       }))
     
-      this.visitedNodes = []
+      this.userStrings = []
     }
+
     resetWords() {
       this.grid.forEach((row) => row.forEach(node => {
         node.usedInWord = [false, false, false,false] 
@@ -222,11 +193,10 @@ const getAllNeighbors = (numRow, numCol)  => {
 
     save(){
       //prevents cyclical refs
-      const visitedNodes = this.visitedNodes.map(node=> compressGridPos(node.gridPos))
+      //const userStrings = this.u.map(node=> compressGridPos(node.gridPos))
     
       return {
         grid:this.grid.map(row=>row.map(node => node.save())),
-        visitedNodes: visitedNodes,
         words: this.words,
         pathLength: this.pathLength
       
@@ -245,17 +215,12 @@ const getAllNeighbors = (numRow, numCol)  => {
         return node;
       }));
   
-  
-      // now that we have proper refs to every node , unpack links
-      this.grid.map(row => row.map(node => {
-        node.links = node.links.map(gridPos => this.getNodeFromGridPos(gridPos));
-  
-      }));
-      
+
+    
       this.setupNeighbors(this.grid.length, this.grid[0].length);
   
 
-      this.visitedNodes = savedBoard.visitedNodes.map(rawGridPos => this.getNodeFromGridPos(unCompressGridPos(rawGridPos)));
+      //this.visitedNodes = savedBoard.visitedNodes.map(rawGridPos => this.getNodeFromGridPos(unCompressGridPos(rawGridPos)));
       
     }
   
@@ -285,8 +250,6 @@ const getAllNeighbors = (numRow, numCol)  => {
       return nodes.map(node=>node.toString()).join(' ')
 
     }
-
-
 
 }
 

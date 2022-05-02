@@ -34,6 +34,7 @@ const Fade = (props) => {
 
 const Segment = ({startNode,endPoint, fixedColor, originalNode}) => {
 
+  //logPoint('start Node position', startNode.pos)
   if (startNode === null  || endPoint === null){
       return null
     }

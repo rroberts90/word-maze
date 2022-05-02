@@ -19,13 +19,46 @@ class Node {
       this.links = [] // If this node is reached these nodes will rotate.
       this.fixed = false // if node is in visited nodes list can't rotate
       this.symbol = null
-
+      this.paths = [] // list of neighbors where a path has been created a<=>b
+      this.useCount = 0 // number of times node has been visited by word or string. 
     }
   }
 
-  hasUnfixedNeighbors() {
-    const unfixedNeighbors = this.neighbors.filter(node=> !node.fixed )
-    return unfixedNeighbors.length > 0
+  /**
+   * 
+   * @param {Node} node 
+   * @returns {Boolean} true if no path exists from this <=> node
+   */
+  isPathOpen(node) {
+    return this.paths.indexOf(node) === -1
+  }
+
+  /**
+   * 
+   * @returns {Array}  neighbors where no path exists from this <=> node
+   */
+  getOpenNeighbors() {
+    return this.neighbors.filter(neighbor => this.paths.indexOf(neighbor) === -1)
+  }
+
+  connect(node){
+    if(this.isPathOpen(node)) {
+      node.useCount++
+      this.paths.push(node)
+      node.paths.push(this)
+    }
+  }
+
+  disconnect(node) {
+    const ndx1 = this.paths.indexOf(node)
+    const ndx2 = node.paths.indexOf(this)
+    if(ndx1 >= 0 && ndx2 >=0) {
+      node.useCount--
+      this.paths.splice(ndx1,1)
+      node.paths.splice(ndx2,1)
+    }else{
+      throw new Error('could not find path to delete. Node.paths not synced')
+    }
   }
 
 
@@ -53,31 +86,6 @@ class Node {
     return this.neighbors.find(neighbor => neighbor === node)
   }
 
-  addLetter(node) {
-
-    // get computed letters
-    const matchNodeRotatedLetters = Utils.rotateLetters(node.letters, node.rot)
-
-    if (node.gridPos.row > this.gridPos.row) {
-      // below current node.
-      return matchNodeRotatedLetters[0]
-    }
-    else if (node.gridPos.row < this.gridPos.row) {
-      // above of current node. 
-      return matchNodeRotatedLetters[2]
-    }
-    else if (node.gridPos.col > this.gridPos.col) {
-      // right of current node. 
-      return matchNodeRotatedLetters[3]
-    }
-    else if (node.gridPos.col < this.gridPos.col) {
-      // left of current node. 
-      return matchNodeRotatedLetters[4]
-     }
-    else {
-      throw Error('No neighbor found')
-    }
-  }
 
   save() {
     const links = this.links.map(node => Utils.compressGridPos(node.gridPos))
