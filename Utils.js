@@ -60,6 +60,13 @@ const logGridPos = (name,gPos) => {
     }
 }
 
+const makeWeightedList = (freqList) => {
+  return freqList.map(freqObj=> {
+      const {item,  freq} = freqObj
+      return Array.from({length: freq},()=> item)
+  }).reduce((r,c)=> [...r, ...c],[])
+}
+
 const compareGridPos = (gPos1, gPos2) => {
     return gPos1.row == gPos2.row && gPos1.col == gPos2.col
 }
@@ -151,4 +158,4 @@ const pointPastCircle = (point, start, end) => {
   }
   return false;
 }
-export {gridPos, point, distance, centerOnNode, pointInCircle, logPoint, logGridPos,compareGridPos, rotateArray, logColors, randInt, convertToLayout, rotateLetters as rotateLetters, unCompressGridPos, compressGridPos, pointPastCircle}
+export {gridPos, point, distance, centerOnNode, pointInCircle, logPoint, logGridPos,compareGridPos, rotateArray, logColors, randInt, convertToLayout, rotateLetters as rotateLetters, unCompressGridPos, compressGridPos, pointPastCircle, makeWeightedList}

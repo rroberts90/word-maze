@@ -12,7 +12,6 @@ const defaultNodeColor = Globals.defaultNodeColor
 const measure = (ref, node, afterUpdate) => {
   if (ref.current) {
     ref.current.measureInWindow((x, y, width, height) => {
-        console.log(x)
       node.pos.x = x
       node.pos.y = y
       node.diameter = Math.floor(width)

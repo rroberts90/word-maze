@@ -16,7 +16,6 @@ class Node {
       this.pos = Utils.point(0, 0)
       this.neighbors = [] // Adjacent Nodes 
       this.diameter = Default_Node_Width
-      this.links = [] // If this node is reached these nodes will rotate.
       this.fixed = false // if node is in visited nodes list can't rotate
       this.symbol = null
       this.paths = [] // list of neighbors where a path has been created a<=>b
@@ -88,13 +87,11 @@ class Node {
 
 
   save() {
-    const links = this.links.map(node => Utils.compressGridPos(node.gridPos))
     //const neighbors = this.neighbors.map(node => compressGridPos(node.gridPos))
 
     const saved = {
       g: Utils.compressGridPos(this.gridPos),
       lt: this.letters.map,
-      l: links
     }
 
     if (this.symbol) {
@@ -137,11 +134,9 @@ class Node {
   }
 
   toString() {
-    //return `Node: (row: ${this.gridPos.row}, col:${this.gridPos.col} )`
     return JSON.stringify({
       gridPos: this.gridPos,
       symbol: this.symbol,
-      links: this.links.map(node => node.gridPos)
 
     })
   }

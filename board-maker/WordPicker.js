@@ -13,6 +13,21 @@ const getDictionary = (name, length) =>{
                 return dict1
         }
 }
+
+const findReusedNodes = (nodes) => {
+        const dict = {}
+        nodes.forEach(node => {
+            dict[`${node.gridPos.row}${node.gridPos.col}`] = { count: 0, stringPosList: [] }
+        })
+        nodes.forEach((node, i) => {
+            dict[`${node.gridPos.row}${node.gridPos.col}`].count++
+            dict[`${node.gridPos.row}${node.gridPos.col}`].stringPosList.push(i)
+        })
+        return Object.entries(dict).filter(arr => arr[1].count > 1).map(arr => arr[1].stringPosList)
+    
+    }
+
+
 /**
  * returns a random word or null
  * @param {
@@ -24,24 +39,21 @@ const getDictionary = (name, length) =>{
  * } options 
  * 
  */
- const pickWord = (options) => {
+ const pickWord = (path) => {
         
-        console.log('pick word with options:')
-        console.log(options)
-        if(!options.length){
-                throw Error(`Word Length Not Specified`)
-        }
-        if(options.length === 1) {
-                return null
-        } 
+        const fixedLetters = path.map((node, i) => {
+                return { letter: node.symbol, position: i }
+            }).filter(obj => obj.letter)
+
+        const sameLetters = findReusedNodes(path)
  
-        const dict = getDictionary(options.dictionary, options.length)
+        const dict = getDictionary('10000', path.length)
 
         // get all words of right length
-        const pool = dict1.words.filter(word=> word.length === options.length)
+        const pool = dict1.words.filter(word=> word.length === length)
 
-        if(options.fixedLetters) {
-                const filteredPool = getWordsThatFit(pool, options.fixedLetters, options.sameLetters)
+        if(fixedLetters) {
+                const filteredPool = getWordsThatFit(pool, fixedLetters, sameLetters)
                 return pickRandomWord(filteredPool)
         }else{
            return pickRandomWord(pool)
@@ -85,20 +97,20 @@ const pickRandomWord = (words) => {
 }
 
 // hard coded bc we're going to use these a bunch. Also no offball rare two letter words. 
-const twoLetterList = ["in", 	"of",
-        "to",	"is",
-        "it",	"on",
-        "no",	"us",
-        "at",	"un",
-        "go", "	an",
-        "my",	"up",
-        "me",	"as",
-        "he",	"we",
-        "so",	"be",
-        "by",	"or",
-        "do",	"if" ,
-        "hi",	
-        "ex",	"ok",
+const twoLetterList = ["IN", 	"OF",
+        "TO",	"IS",
+        "IT",	"ON",
+        "NO",	"US",
+        "AT",
+        "GO", "	AN",
+        "MY",	"UP",
+        "ME",	"AS",
+        "HE",	"WE",
+        "SO",	"BE",
+        "BY",	"OR",
+        "DO",	"IF" ,
+        "HI",	
+        "EX",	"OK", "GO"
 ]
 
 

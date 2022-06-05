@@ -21,8 +21,6 @@ const Game = ({ navigation, route }) => {
  
   const {  gameId } = route.params
 
-  const height = useWindowDimensions().height
-
   const undoEl = useRef(null)
   const restartEl = useRef(null)
   const hintEl = useRef(null)
@@ -38,14 +36,7 @@ const Game = ({ navigation, route }) => {
     if (ref.current === null) {
       //board.current = new Board({gameType,gameId});
      
-      // for testing
-      const seedWords = ['irate', 'inert', 'firetruck']
-      const seedWords2 = ['firetruck']
-      const seedWords3 = ['cowboy', 'firetruck']
-      const seedWords4 = ['cowboy','boy','range','howdy','partner']
-      const seedWords5 = ['irate','interim','trim','grit','trist']
-
-      ref.current = buildBoard(seedWords5, 1);
+      ref.current = buildBoard(1);
     }
 
     return ref.current

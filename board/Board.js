@@ -190,6 +190,12 @@ const getAllNeighbors = (numRow, numCol)  => {
     hint(){
 
     }
+    
+    countEmptyNodes() {
+      const nodes =  this.grid.reduce((flat, row) => [...flat, ...row])
+
+      return nodes.filter(node=> !node.symbol).length
+    }
 
     save(){
       //prevents cyclical refs

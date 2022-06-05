@@ -28,73 +28,16 @@ const getRandomElement = (randomDist) => {
 }
 
 
-// adds otherNode to node.links if otherNode !=== node  and it's not already in the list
-const addLink = (node, otherNode) => {
-    if(node !== otherNode && !node.links.includes(otherNode)) {
-        node.links = [...node.links, otherNode]
-    }
-}
-
-
-
-const keepTrying = (tries, maxTries, pathLength,criteria) => {
-    if(tries < maxTries) {
-        return true;
-    }
-    if(pathLength < criteria.minPathLength) {
-        return true;
-    }else {
-    return false;
-    }
-}
-
-// const buildBoard = (seedWords, difficulty) => {
-
-//     const t1 = Date.now()
-//     const board = new Board()
-    
-//     const criteria = getCriteria(difficulty)
-   
-//    let realCount = 0
-//    const MaxTries = 50
-//    let shortestSolution = 0
-   
-//    let bestBoard = null
-//    let pathLength = 0
-
-//    while( realCount < 1) {//keepTrying(realCount,MaxTries, pathLength, criteria)){
-   
-//         //criteria.falsePathsRemaining = criteria.falsePaths;
-//         board.resetGrid()
-//         board.resetWords()
-
-//         setupWords(board,seedWords, criteria)
-
-//         //setupLinkedNeighbors(board, criteria);
-//         board.resetGrid()
-
-//         realCount++
-
-//    }
-
-//     board.resetGrid()
-
-
-//     const t2 = Date.now()
-
-//     //console.log(`\ntotal time to setup: ${t2- t1} milliseconds`)
-//    return board
-// }
 
 const buildBoard = (difficulty) => {
         const t1 = Date.now()
     const board = new Board()
-    
     const criteria = getCriteria(difficulty)
 
     setupWords(board, criteria)
     const t2 = Date.now()
-    console.log(`\ntotal time to setup: ${t2- t1} milliseconds`)
+    console.info(`\ntotal time to setup: ${t2- t1} milliseconds`)
+    return board
 }
 
 export default buildBoard

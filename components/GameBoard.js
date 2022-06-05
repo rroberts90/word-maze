@@ -25,7 +25,6 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
   const [win, setWin] = useState(() => false)
 //  console.log(getBoard().getCurrentNode().toString())
 
-  const [currentNode, setCurrentNode] = useState(() => getBoard().getCurrentNode())
 
   const lineSegments = useRef([])
   const fadeSegments = useRef([])
@@ -33,7 +32,6 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
 
   const intervalId = useRef(null)
 
-  const [defaultPulser, setDefaultPulser] = useState(0)
   const [loading, toggleLoading] = useState(true)
 
   const { play } = useSound()
@@ -54,7 +52,6 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
   const updateNodeBundle = (next, node) => {
 
     const prevNode = node
-    setCurrentNode(next)
 
     addLineSegment(prevNode, next)
 
@@ -106,14 +103,8 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
   }
 }
 
-  const currPosF = currentNode?.pos 
-
-  const currX = currentNode?.pos.x || 0
-  const currY = currentNode?.pos.y || 0
-
   function resetCurrentNode(makePulseWait) {
 
-    setCurrentNode(getBoard().getCurrentNode())
 
     if (!makePulseWait) {
       triggerPulser(currentValue => currentValue + 1)
