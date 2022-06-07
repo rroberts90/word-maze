@@ -1,6 +1,7 @@
 import { rotateArray, randInt, rotateLetters, logGridPos, gridPos, makeWeightedList } from '../Utils.js'
 import Word from '../board/Word'
 import { pickWord } from './WordPicker'
+import tightfit from './TightFitter.js'
 const MaxWordPackTries = 10
 
 const MinWordLength = 3
@@ -28,7 +29,7 @@ const addWord = (board, minLength, maxLength, mode) => {
     const length = randInt(minLength, maxLength)
 
     if(mode === 'tightfit') {
-        console.log(`adding tight fit word length: ${length}`)
+       // console.log(`adding tight fit word length: ${length}`)
     }
 
     let placed = false
@@ -48,26 +49,29 @@ const addWord = (board, minLength, maxLength, mode) => {
         // randomly find a series of nodes to put a word in
         const added = addPlaceholderLetters(board, length, mode)
         if(mode === 'tightfit') {
-            logGridPos('tight fit start: ', start.gridPos)
-            console.log(`   addPlaceholder returned true?: ${added}`)
+           // logGridPos('tight fit start: ', start.gridPos)
+          //  console.log(`   addPlaceholder returned true?: ${added}`)
         }
         if (added) {
 
             const word = pickWord(board.userStrings[0])
             
             if (word) {
-                placeWord(word, board.userStrings[0], board)
+                board.placeWord(word, board.userStrings[0])
                 placed = true
             } else {
                 // do it again.
                 start.useCount--
                 tries++
-                console.log('   could not place word at attempt')
+               // console.log('   could not place word at attempt')
+               removePlaceholderLetters(board,board.userStrings[0])
             }
         } else {
             // do it again
             start.useCount--
             tries++
+            removePlaceholderLetters(board,board.userStrings[0])
+
         }
 
 
@@ -82,17 +86,6 @@ const addWord = (board, minLength, maxLength, mode) => {
 
 
 
-const placeWord = (word, nodes,board) => {
-    if (word.length !== nodes.length) {
-        throw new Error(`different # ofletters and nodes\nWord Length: ${word.length} Nodes Length: ${nodes.length}\nNodes: ${nodes.map(node => `${node.gridPos.row}-${node.gridPos.col}`).join(' ')}`)
-    }
-    nodes.forEach((node, i) => {
-        const letter = word[i]
-        node.symbol = letter
-
-    })
-    board.words.push(new Word(word, nodes))
-}
 
 const getPlaceholderStart = (board, mode) => {
     let possibleStarts = [];
@@ -129,6 +122,13 @@ const getPlaceholderStart = (board, mode) => {
    // return weightedStartList[randInt(0, weightedStartList.length - 1)]
 }
 
+const removePlaceholderLetters = (board, nodes) => {
+    nodes.forEach((node,i)=> {
+        if(i < nodes.length-1) {
+            node.disconnect(nodes[i+1])
+        }
+    })
+}
 const addPlaceholderLetters = (board, numLettersRemaining, mode) => {
    
     if (numLettersRemaining === 1) { // base case
@@ -179,46 +179,31 @@ const logWordPositions = (board) => {
     })
 }
 
-const emptyNodesRemain = (board) => {
-  
-    // ok how many unfixed nodes are there?
-    let count = 0;
-    board.grid.map(row => row.map(node => {
-        if (!node.symbol) {
-            count++
-        }
-    }))
-
-    return count > 0
-}
-
-
 const setupWords = (board, criteria) => {
 
-    let minLength = 5
+    let minLength = 6
     let maxLength = 9
 
     const strict = 'tightfit'
 
-    for(let i = 0; i< 40;i++) {
+    for(let i = 0; i< 80;i++) {
         addWord(board, minLength, maxLength)
     }
     minLength = 4
     maxLength = 6
 
     for(let i = 0; i< 100;i++) {
-        addWord(board, minLength, maxLength, strict)
+        addWord(board, minLength, maxLength)
     }
+
+    minLength = 3
+    maxLength = 4
 
     for(let i = 0; i< 100;i++) {
-        addWord(board, 3, 4, strict)
+        addWord(board, minLength, maxLength)
     }
 
-    for(let i = 0; i< 100;i++) {
-        addWord(board, 2, 3, strict)
-    }
-
-
+    //tightfit(board)
 
     logWordPositions(board)
 
@@ -226,3 +211,13 @@ const setupWords = (board, criteria) => {
 
 
 export default setupWords
+
+// 
+
+// for(let i = 0; i < board.grid.length; i++) {
+//     for(let j = 0; j < board.grid[0].length; j++) {
+//             const current = board.grid[i][j]
+//             logGridPos('current: ', current.gridPos)
+//             console.log(`     ${current.getOpenNeighbors().length}`)
+//     }
+// }

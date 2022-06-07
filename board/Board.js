@@ -197,6 +197,26 @@ const getAllNeighbors = (numRow, numCol)  => {
       return nodes.filter(node=> !node.symbol).length
     }
 
+    placeWord(word, nodes) {
+        if (word.length !== nodes.length) {
+            throw new Error(`different # ofletters and nodes\nWord Length: ${word.length} Nodes Length: ${nodes.length}\nNodes: ${nodes.map(node => `${node.gridPos.row}-${node.gridPos.col}`).join(' ')}`)
+        }
+        nodes.forEach((node, i) => {
+          const letter = word[i]
+
+            if(node.symbol && node.symbol !== letter) {
+              throw new Error(`Cannot overwrite letter with different letter`)
+            }
+            node.symbol = letter
+
+            if(i < nodes.length-1) { // connect the nodes
+              node.connect(nodes[i+1])
+            }
+    
+        })
+        this.words.push(new Word(word, nodes))
+    
+    }
     save(){
       //prevents cyclical refs
       //const userStrings = this.u.map(node=> compressGridPos(node.gridPos))

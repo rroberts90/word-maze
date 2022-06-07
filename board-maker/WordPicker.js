@@ -50,7 +50,7 @@ const findReusedNodes = (nodes) => {
         const dict = getDictionary('10000', path.length)
 
         // get all words of right length
-        const pool = dict1.words.filter(word=> word.length === length)
+        const pool = dict1.words.filter(word=> word.length === path.length)
 
         if(fixedLetters) {
                 const filteredPool = getWordsThatFit(pool, fixedLetters, sameLetters)

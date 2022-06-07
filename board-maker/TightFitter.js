@@ -1,3 +1,4 @@
+import { logGridPos } from '../Utils'
 import { pickWord } from './WordPicker'
 
 /**
@@ -11,13 +12,43 @@ import { pickWord } from './WordPicker'
  let allPaths = []
 
  /**
-  * remove all paths that contain 0 open nodes
+  * removes paths with 0 open nodes
   */
- const filterAllPaths = () => {
+ const removeRedudantPaths = () => {
         return allPaths.filter(path=> path.filter(node=> !node.symbol).length>0)
  }
+
+ /**
+  *  removes paths where connections aren't open anymore
+  */
+ const removeBlockedPaths = () => {
+         return allPaths.filter(path=> {
+                 const allOpen = path.reduce((prev,curr)=> {
+                         if (prev === false) {
+                                 return false
+                         }
+                         else {
+                                 if (prev.isPathOpen(curr)) {
+                                         return c
+                                 }
+                                 else {
+                                         return false
+                                 }
+                         }    
+                 })
+                 return allOpen
+
+         })
+ }
+
+const logPath = (path) => {    
+                const string = path.map(node=> `${node.gridPos.row} ${node.gridPos.col}`).join(', ')
+                console.log(`length: ${path.length}`)
+                console.log(`   ${string}`)
+}
 const tightfit = (board) => { 
         allPaths = []
+        console.log(`Open nodes at tightfitstart: ${board.countEmptyNodes()}`)
         for(let i = 0; i < board.grid.length; i++) {
                 for(let j = 0; j < board.grid[0].length; j++) {
                         const current = board.grid[i][j]
@@ -29,20 +60,34 @@ const tightfit = (board) => {
         }
 
         // now filter allPaths to exclude paths with no open nodes. we don't care about those 
-        allPaths = filterAllPaths()
-
+        allPaths = removeRedudantPaths()
+       
+        allPaths.forEach(path=> {
+                const string = path.map(node=> `${node.gridPos.row} ${node.gridPos.col}`).join(', ')
+                console.log(string)
+        })
         // ok now go through allPaths and try to insert words 
         // go until either there are no more open nodes or we run out of open paths.
-        while (allPaths.length > 0 && board.countEmptyNodes() > 0) {
+        while (allPaths.length > 0 && board.countEmptyNodes() > 0 && false) {
                 let wordPlaced = false
-                for (path in allPaths) {
+                for (path of allPaths) {
                         const word = pickWord(path)
-                        
+                        if(word) {
+                                board.placeWord(word, path)
+                                break
+                        }
 
                 }
                 if( wordPlaced){ // remove all paths that don't work anymore
-
+                        allPaths = removeRedudantPaths()
+                        allPaths = removeBlockedPaths()
                 }
+        }
+
+        if(board.countEmptyNodes() > 0){
+                return false
+        }else {
+                return true
         }
 }
 
@@ -56,15 +101,28 @@ const insertPath = (path) => {
                         break
                 }
         }
+
         allPaths.splice(ndx,0,path)
+
 }
+
 const getAllPaths = (board, node) => { 
+        if(board.userStrings[0].length > 1) { 
+                insertPath(board.userStrings[0].map(node=> node))
+        }
+
+        logGridPos('current node', node.gridPos)
         const openNeighbors = node.getOpenNeighbors()
         if(openNeighbors.length === 0) { // base case
-                insertPath(board.userStrings[0].map(node=> node))
+                console.log(    'no open neighbors')
+                return 
 
         } else {
-                for(neighbor in openNeighbors) {
+                logPath(node.neighbors)
+                for(neighbor of openNeighbors) {
+                        console.log('   connecting to neighbor')
+                        logGridPos('    neighbor: ', neighbor.gridPos)
+                        console.log('\n')
                         node.connect(neighbor)
                         board.userStrings[0].push(neighbor)
                         getAllPaths(board,neighbor)
