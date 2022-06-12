@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import {StyleSheet, View, Animated,Easing, useWindowDimensions} from 'react-native'
 import Globals from '../Globals'
 
-import { distance, centerOnNode,rotateLetters,convertToLayout, point, logPoint } from '../Utils'
+import { distance, centerOnNode,rotateLetters,convertToLayout, point, logPoint, logGridPos, gridPos } from '../Utils'
 
 
 const toDegrees = (angle) =>{
@@ -32,20 +32,24 @@ const Fade = (props) => {
 }
 
 
-const Segment = ({startNode,endPoint, fixedColor, originalNode}) => {
+const Segment = ({startNode,endPoint, color, originalNode}) => {
 
-  //logPoint('start Node position', startNode.pos)
+
   if (startNode === null  || endPoint === null){
       return null
     }
 
-    const color =  Globals.defaultBorderColor
+  // need to add translation offset if the node has changed
+  // const [offsetX, offsetY] = startNode === originalNode ? 
+  // [0,0] : [originalNode.pos.x - startNode.pos.x, originalNode.pos.y - startNode.pos.y,]
+  const [offsetX, offsetY] =  [startNode.pos.x, startNode.pos.y]
+
     
     const startPos = centerOnNode(startNode.pos,  startNode.diameter)
     const endPos  = endPoint 
     
     const scaleX = distance(endPos.x - startPos.x, endPos.y - startPos.y)
-    const scaleY = startNode.diameter / 8 // line width
+    const scaleY = startNode.diameter / 6 // line width
 
     const opp = endPoint.y - startPos.y
     const xDir = Math.sign(endPoint.x - startPos.x)
@@ -56,10 +60,12 @@ const Segment = ({startNode,endPoint, fixedColor, originalNode}) => {
     // const leftDiff = startNode.pos.x - originalNode.pos.x
     return (<View style={[styles.dot, 
 
-                        { backgroundColor: Globals.defaultBorderColor,
+                        { backgroundColor: color,
                           top: startNode.diameter / 2,
                           left: startNode.diameter /2,
                          transform: [ 
+                           {translateX: offsetX},
+                           {translateY: offsetY},
                           { rotate: rotate },
                           { translateX: scaleX/2 },
                              { scaleX: scaleX }, 
@@ -72,8 +78,8 @@ const Segment = ({startNode,endPoint, fixedColor, originalNode}) => {
    )
 }
 
-const getFixedStyles = (startNode, endNode) => {
- const width = startNode.diameter/ 5
+const getFixedStyles = (startNode, endNode, color) => {
+ const width = startNode.diameter/ 6
  //const rotatedColors = rotateColors(startNode.colors, startNode.rot)
 
   if(startNode.gridPos.row < endNode.gridPos.row){  // below
@@ -83,7 +89,7 @@ const getFixedStyles = (startNode, endNode) => {
     const length = Math.abs(endNode.pos.y - startNode.pos.y)
    
     return {
-      backgroundColor:  Globals.defaultBorderColor,
+      backgroundColor:  color,
       top: startPos.y - startNode.diameter,
       left: startPos.x,
       width: width,
@@ -98,7 +104,7 @@ const getFixedStyles = (startNode, endNode) => {
     const length = Math.abs(endNode.pos.y - startNode.pos.y)
     
     return {
-      backgroundColor:  Globals.defaultBorderColor,
+      backgroundColor:  color,
       top: startPos.y - startNode.diameter,
       left: startPos.x,
       width: width,
@@ -111,8 +117,8 @@ const getFixedStyles = (startNode, endNode) => {
 
     const length = Math.abs(endNode.pos.x - startNode.pos.x)
     return {
-      backgroundColor:  Globals.defaultBorderColor,
-      top: startNode.pos.y -startNode.diameter/4 - width/2,
+      backgroundColor:  color,
+      top: startNode.pos.y -startNode.diameter/2 - width/2,
       left: startPos.x,
       width: length,
       height: width
@@ -125,8 +131,8 @@ const getFixedStyles = (startNode, endNode) => {
     const length = Math.abs(endNode.pos.x - startNode.pos.x)
     
     return {
-      backgroundColor:  Globals.defaultBorderColor,
-      top: startNode.pos.y -startNode.diameter/4 - width/2,
+      backgroundColor:  color,
+      top: startNode.pos.y -startNode.diameter/2 - width/2,
       left: startPos.x,
       width: length,
       height: width
@@ -134,9 +140,9 @@ const getFixedStyles = (startNode, endNode) => {
   }
 }
 
-const FixedSegment = ({startNode, endNode}) => {
+const FixedSegment = ({startNode, endNode, color}) => {
     
-    const fixedStyles = getFixedStyles(startNode, endNode)
+    const fixedStyles = getFixedStyles(startNode, endNode, color)
 
     const isHorizontal = startNode.gridPos.row === endNode.gridPos.row 
 
@@ -153,11 +159,11 @@ const FixedSegment = ({startNode, endNode}) => {
     return (
       <View >
         {segments.map((seg,i) =>
-            <FixedSegment startNode={seg.startNode} endNode={seg.endNode} key={i}/>
+            <FixedSegment startNode={seg.startNode} endNode={seg.endNode} color={seg.color} key={i}/>
         )}
         {fades.map((seg,i) =>
             <Fade fade={true} onFade={()=> fades.pop()}  key={i}>
-            <FixedSegment startNode={seg.startNode} endNode={seg.endNode}/>
+            <FixedSegment startNode={seg.startNode} endNode={seg.endNode} color={seg.color}/>
             </Fade>
         )}
       </View>

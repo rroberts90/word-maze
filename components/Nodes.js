@@ -48,8 +48,7 @@ const borderSize = (diameter) => {
   }
 }
 
-
-const NodeView = ({node, triggerPulser, detectMatch}) => {
+const NodeView = ({node, triggerPulser, currentNode,currentColor}) => {
 
   const measureRef = useRef(null)
  
@@ -76,10 +75,12 @@ const NodeView = ({node, triggerPulser, detectMatch}) => {
 
       }}
   >
+
       <Cursor node={node}
                   triggerPulser={triggerPulser}
-                  detectMatch={detectMatch}
                   currPoint ={point(currX,currY)}
+                  currentNode = {currentNode}
+                  currentColor = {currentColor}
       />
       <View style={[styles.background]}/>
       <Letter letter={node.symbol}/>
@@ -162,47 +163,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     height: '100%',
-    backgroundColor: Globals.defaultBackground,
+    backgroundColor: Globals.defaultNodeColor,
     borderRadius: 200
   },
-  nodeBorder: {
-  },
-
   pulse: {
     position: "absolute",
     backgroundColor: "darkgrey",
     zIndex: 0
   },
 
-  textSymbol: {
-    fontSize: 30
-  },
 
-  board: {
-    flex: 1,
-    justifyContent: "space-evenly",
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
-    paddingHorizontal: 5
-  },
-  tutorial: {
-    flex: 1
-  },
-
-  horizontalLine: {
-    position: 'absolute',
-    width: '100%'
-  },
-  lock: {
-    position: 'absolute',
-
-    width: '65%',
-    height: '65%',
-    alignSelf: 'center',
-    top: '15%',
-    opacity: 1,
-  },
 
 })
 

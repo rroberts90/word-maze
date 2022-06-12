@@ -8,7 +8,7 @@ import Wheel from './Wheel'
 import { point } from "../Utils"
 import { clickProps } from "react-native-web/dist/cjs/modules/forwardedProps"
 
-const GridView = ({board, afterUpdate, triggerPulser, detectMatch}) => {
+const GridView = ({board, afterUpdate, triggerPulser, currentColor,setEndPoint,currentNode}) => {
 
   // const rows = board.grid.map((row, i) => {
   //   return (
@@ -28,8 +28,9 @@ const GridView = ({board, afterUpdate, triggerPulser, detectMatch}) => {
     return (
         row.map((node, j) => <NodeView node={node}
           key={i*6+j}
-          detectMatch = {detectMatch}
-          triggerPulser = {triggerPulser}    
+          triggerPulser = {triggerPulser}  
+          currentNode = {currentNode}  
+          currentColor = {currentColor}
           />)
 
     )

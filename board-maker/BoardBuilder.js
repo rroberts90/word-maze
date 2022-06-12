@@ -27,10 +27,9 @@ const getRandomElement = (randomDist) => {
     return randomDist[randInt(0,randomDist.length-1)]
 }
 
-
-
 const buildBoard = (difficulty) => {
-        const t1 = Date.now()
+    
+    const t1 = Date.now()
     const board = new Board()
     const criteria = getCriteria(difficulty)
 

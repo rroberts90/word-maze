@@ -12,7 +12,7 @@ import {StyleSheet, View, Image, Text} from 'react-native'
 
       letter: {
         position:'absolute',
-        fontSize: 33,
+        fontSize: 38,
         fontFamily: 'Avenir-Book'
         
       }

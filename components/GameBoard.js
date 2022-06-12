@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, createContext } from 'react'
 import { View, StyleSheet, useWindowDimensions, Vibration } from 'react-native'
 
 import { Pulse } from './Nodes'
@@ -6,7 +6,7 @@ import GridView from './Grid'
 import { Cursor } from './UserInput'
 import DemoCursor from './DemoCursor'
 import { point, centerOnNode, logGridPos, rotateColors } from '../Utils'
-import { UserPath } from './Paths'
+import { UserPath, Segment } from './Paths'
 import useInterval from '../custom-hooks/UseInterval.js'
 import { levelUp, getItem, storeItem } from '../storage'
 import useSound from '../custom-hooks/UseSound'
@@ -15,8 +15,18 @@ import { InfoHeader } from './Header'
 import ButtonsBar from './ButtonsBar'
 
 import Globals from '../Globals'
+
+import nextColor from '../nextColor'
+import { CursorContext } from '../CursorContext'
+
 const defaultBackground = Globals.backgroundColor
 
+const findSegmentIndex = (lineSegments, currentNode, nextNode) => {
+  return lineSegments.findIndex(seg=> 
+    (seg.startNode === currentNode && seg.endNode === nextNode) || 
+    (seg.startNode === nextNode && seg.endNode === currentNode) )
+  
+}
 
 const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
 
@@ -28,6 +38,7 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
 
   const lineSegments = useRef([])
   const fadeSegments = useRef([])
+
   const [pulser, triggerPulser] = useState(() => 0) // triggers pulse animation
 
   const intervalId = useRef(null)
@@ -36,12 +47,21 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
 
   const { play } = useSound()
 
-  const addLineSegment = (node, next) => {
+  const [endPoint, setEndPoint] = useState(null)
+  const currentNode = useRef(null)
 
+  const colors = useRef(nextColor()).current
+  //const [segmentColor, setSegmentColor] = useState('rgba(255,255,255,1)')
+  const segmentColor = useRef('rgba(255,255,255,1)')
+   
+  const addLineSegment = (node, next) => {
+   
     const seg = {
       startNode: node,
       endNode: next,
+      color: segmentColor.current
     }
+
     lineSegments.current = [...lineSegments.current, seg]
   }
 
@@ -49,13 +69,14 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
    Sets a new current node. 
    Adds segment to previous node
   */
-  const updateNodeBundle = (next, node) => {
+  const updateNodeBundle = (next, node,color) => {
 
     const prevNode = node
 
-    addLineSegment(prevNode, next)
-
     triggerPulser(currentValue => currentValue + 1)
+
+    addLineSegment(prevNode, next, color)
+
 
     if (false) { //TODO PUT FINISH CONDITION HERE
 
@@ -74,27 +95,25 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
 
       })
 
-
     } else {
       play('connect')
 
     }
   }
 
-  function detectMatch(currentNode,point) {
+  function detectMatch(node,point,color) {
 
-
-    const candidate  = currentNode.matchPoint(point) 
+    const candidate  = node.matchPoint(point) 
 
     if (candidate) {
 
-      const { next, prev } = getBoard().vistNode(currentNode,candidate)
+      const { next, prev } = getBoard().visitNode(node,candidate)
       if (next) {
-        updateNodeBundle(next, currentNode)
+        updateNodeBundle(next, node,color)
         return next
       }
       else if (prev) {
-        onUndo()
+        onUndo(node, prev)
         return prev
       }else {
         return null
@@ -128,15 +147,20 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
     return null
   }
 
-  function onUndo(button) {
+  function onUndo( currentNode, nextNode) {
 
-    if (getBoard().removeLast()) {
-      play(button ? 'button' : 'undo')
-      const seg = lineSegments.current.pop()
-      fadeSegments.current.push(seg)
+      //play(button ? 'button' : 'undo')
+      console.log('undoing')
+      const segIndex = findSegmentIndex(lineSegments.current,currentNode, nextNode)
+
+      if(segIndex === -1 ) {
+        throw new Error('Could not find segment. lineSegments and Board out of sync')
+      }
+
+      const seg = lineSegments.current.splice(segIndex,1)
+      //fadeSegments.current.push(seg)
       resetCurrentNode()
 
-    }
   }
 
   function onRestart() {
@@ -144,6 +168,44 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
     lineSegments.current = []
     resetCurrentNode()
     setWin(false)
+  }
+
+  function handleUserStringsOnNewTouch(node) {
+    // ok some logic: 
+    //if user just touched node with 0 connections, 
+    //   -- set segment to new color
+    //   -- no need to make new userString bc we'll create it on first connection
+    // if user touched node with 1 connection, 
+    //    -- set segment to color of the last segment in string
+    //    -- set currentUserString to userString
+    // if user touched node with 2 connections, 
+    //    --  set segment to color of the last segment in most recently pressed string.
+    //    -- set currentUserString to last segment in most recently pressed string
+    
+    if(node.paths.length === 0) {
+      //setSegmentColor(colors())
+      segmentColor.current = colors()
+
+    }
+
+    else if(node.paths.length === 1 ) {
+      // find user string
+      const userString = getBoard().findUserStringWithAdjacentNodes(node, node.paths[0])
+      
+      if(!userString) {
+        throw new Error('Could not find userString for path')
+      }
+
+      const segIndex = findSegmentIndex(lineSegments.current, node, node.paths[0])
+      
+      //setSegmentColor(lineSegments.current[segIndex].color)
+      segmentColor.current = lineSegments.current[segIndex].color
+
+      getBoard().currentStringNdx = getBoard().userStrings.indexOf(userString)
+
+    }
+
+ 
   }
 
   useEffect(() => {
@@ -158,17 +220,23 @@ const GameBoard = ({ getBoard, hintEl, undoEl, restartEl, navigation }) => {
   return (
 
     <View style={[styles.container]} >
-    <InfoHeader navigation={navigation} title={'The Daily'} />   
+    <InfoHeader navigation={navigation} title={'Test Level'} />   
+    <Segment startNode= {currentNode.current} endPoint={endPoint} originalNode={currentNode.current} color={segmentColor.current}/> 
 
       <UserPath segments={lineSegments.current} fades={fadeSegments.current} />
+      <CursorContext.Provider value={{ setEndPoint: setEndPoint, 
+                                       detectMatch: detectMatch,
+                                       triggerPulser: triggerPulser,
+                                       handleUserStringsOnNewTouch: handleUserStringsOnNewTouch,
+                                      }}>
+        <GridView board={getBoard()}
+          height={height} won={win}
+          triggerPulser={triggerPulser}
+          currentNode={currentNode}
+          currentColor = {segmentColor.current}
 
-      <GridView board={getBoard()} 
-      height={height} won={win} 
-      triggerPulser={triggerPulser} 
-      detectMatch={detectMatch}
-      
-      />
-
+        />
+      </CursorContext.Provider>
       <ButtonsBar undoEl={undoEl} restartEl={restartEl} hintEl={hintEl} />
     </View>
   )

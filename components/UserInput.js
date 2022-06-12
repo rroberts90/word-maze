@@ -1,23 +1,19 @@
-import React, {useRef, useState, useEffect } from "react"
+import React, {useRef, useState, useEffect, useContext } from "react"
 import { Animated, PanResponder, StyleSheet} from "react-native"
 import { dynamicNodeSizeNoPosition } from "../node-size"
 import {  Segment } from "./Paths"
 import * as MyMath from '../Utils'
+import Board from "../board/Board"
 
+import { CursorContext } from "../CursorContext"
 /**
  * handles user touch on nodes. Fixed to one node, will follow users uninterupted touch to 
  * other nodes, reverts to original on release
  *  */
-const Cursor = ({node, triggerPulser, detectMatch}) => {
+const Cursor = ({node, triggerPulser, currentNode,currentColor}) => {
 
-    // const [currX, setCurrX]= useState(()=>0)
-    // const [currY, setCurrY]= useState(()=>0)
 
-    const [endPoint, setEndPoint] = useState(null)
-    const [currentNode, setCurrentNode] = useState(()=> node) 
-
-    //const [originalNode, setOriginalNode] =useState(()=> node)
-
+    const gameBoard = useContext(CursorContext)
     const pan = useRef(new Animated.ValueXY()).current
 
     const panResponder = useRef(
@@ -30,9 +26,13 @@ const Cursor = ({node, triggerPulser, detectMatch}) => {
   
         onPanResponderGrant: (evt, gestureState) => {
           console.log('granting\n')
+          currentNode.current = node
+          
+          gameBoard.handleUserStringsOnNewTouch(node)
 
           const centeredEndPoint = MyMath.point(gestureState.x0, gestureState.y0) 
-          setEndPoint(centeredEndPoint)
+          gameBoard.setEndPoint(centeredEndPoint)
+          
           
           triggerPulser(current=> current+1)
 
@@ -45,15 +45,15 @@ const Cursor = ({node, triggerPulser, detectMatch}) => {
         onPanResponderMove: (evt, gestureState) => {
        
           const point =  MyMath.point( gestureState.moveX,gestureState.moveY )
-          setEndPoint(point)
-         
-          // check for intersections with other nodes
-          const nextNode = detectMatch(currentNode,point)
+          gameBoard.setEndPoint(point)
+
+          const nextNode = gameBoard.detectMatch(currentNode.current,point)
+          
 
           if(nextNode) {
             console.log('GOT NEXT NODE')
 
-            setCurrentNode(nextNode)
+            currentNode.current = nextNode
           }
  
           return Animated.event(
@@ -66,16 +66,15 @@ const Cursor = ({node, triggerPulser, detectMatch}) => {
         },
         onPanResponderRelease: (evt, gestureState) => {
          
-          setEndPoint(null)
-          setCurrentNode(node)
+          gameBoard.setEndPoint(null)
+          currentNode.current = null
           pan.setValue({ x: 0, y: 0 })
         }
       })
     ).current
 
-    const segment =   node ? <Segment startNode= {currentNode} endPoint={endPoint}/>  : null
-
-return (<>   
+ 
+return (  
         <Animated.View
     style={[{
       transform: [{ translateX: pan.x }, { translateY: pan.y }],
@@ -85,9 +84,6 @@ return (<>
     {...panResponder.panHandlers}
    >
     </Animated.View>
-    {segment}
-
-    </>
 
     )
   }
@@ -95,7 +91,7 @@ return (<>
   const styles = StyleSheet.create({
 
     cursorTest: {
-        backgroundColor: "rgba(10,50,10,.5)",
+        backgroundColor: "rgba(10,50,10,0)",
       },
     }
   )

@@ -4,7 +4,35 @@ import {gridPos, randInt, point, compressGridPos,unCompressGridPos} from '../Uti
 import Globals from '../Globals'
 import Node from './Node'
 import Word from './Word'
-const colorScheme = Globals.colorScheme;
+
+const colorScheme = Globals.colorScheme
+
+const twoNodesAreAdjacentOnSamePath = (path,current,next) => {
+
+  // goes through list looking for adjacent nodes
+  const result = path.reduce((r,c,i)=> {
+    if(r.result === 'adjacent'){
+      return r
+    } 
+    else if(r === current && c === next)
+    {
+      return {result: 'adjacent', currentIndex: i-1, nextIndex: i  }
+    }
+    else if(r === next && c === current)
+    {
+      return {result: 'adjacent', currentIndex: i, nextIndex: i-1 }
+    } 
+    else{
+      return c
+  }})
+
+  if(result.result === 'adjacent') {
+    return result
+  }else {
+    return {}
+  }
+
+}
 
 const getColors = (colorSet) => {
   return Object.entries(colorSet).map((arr)=> arr[1])
@@ -63,6 +91,7 @@ const getAllNeighbors = (numRow, numCol)  => {
   class Board {
 
     constructor(boardData) {
+      
       if (boardData) {
         this.loadSave(boardData)
 
@@ -72,7 +101,7 @@ const getAllNeighbors = (numRow, numCol)  => {
         this.words = [] // the solution
         this.userStrings = [] // users current board
         this.currentStringNdx = -1 // ndx of string user is adding nodes to
-
+        this.currentNode = null //
         this.setupNeighbors(this.grid.length, this.grid[0].length)
 
       }
@@ -94,12 +123,17 @@ const getAllNeighbors = (numRow, numCol)  => {
     }
 
      getCurrentNode(){
-        if(this.currentStringNdx >= 0) {
-          const lastNodeNdx = this.userStrings[this.currentStringNdx].length-1
-          return this.userStrings[this.currentStringNdx][lastNodeNdx]
-        }else {
-        return null
-        }
+    
+       if (this.currentStringNdx >= 0) {
+
+         const lastNodeNdx = this.userStrings[this.currentStringNdx].length - 1
+        
+         return this.userStrings[this.currentStringNdx][lastNodeNdx]
+       }
+       else {
+
+         return null
+       }
     }
     
 
@@ -108,43 +142,100 @@ const getAllNeighbors = (numRow, numCol)  => {
 
     }
 
+    addUserString(node){
+      const userString = [node]
+      this.userStrings.push(userString)
+      return userString
+    }
+
     /**
-     * Creates a path from currentNode to nextNode
+     * Returns Array of userStrings containing all nodes enumerated in params
+     * @param {[Node]} nodes
+     */ 
+    findUserStrings(nodes) {
+      return this.userStrings.filter(path=> 
+        nodes.every(node=> path.includes(node)))
+    }
+
+
+    /**
+     * Returns userString where node1 and node2 are on string and are adjacent 
+     * @param {Node} node1
+     * @param {Node} node2
+     */ 
+     findUserStringWithAdjacentNodes(node1, node2) {
+       // there should only be 1 userstring bc we can't have more than 1 path between nodes
+       // if there are 2+ strings with same connection there is a problem
+      return this.userStrings.find(path=> twoNodesAreAdjacentOnSamePath(path,node1,node2).result === 'adjacent')
+    }
+
+
+  
+
+
+    /**
+     * Creates/removes path from currentNode to nextNode
      * Either add nextNode to currentString or creates new string.
-     * Create new string if - currentNode is has 0 paths,
-     * TODO add more logic
      * @param {Node} currentNode 
      * @param {Node} nextNode: neighbor of node
-     * @returns {next: node if adding new node, prev: node if removing a node } null: no visiting possible 
+     * @returns {next: node if adding new node, prev: node if removing a node } 
      */
     visitNode(currentNode, nextNode) {
 
-      if(curr === nextNode) {//can't visit myself
+      if(currentNode === nextNode) {//can't visit myself
 
-        throw new Error('node can not visit itself')
+        throw new Error('node cannot visit itself')
       }
 
       // if path is open we're connecting, closed we're deleting
       if(currentNode.isPathOpen(nextNode)) {
-          // is this the start of a new string? 
-              // no paths on currentNode
-              // 2 connections on current node part of different userString
-              // the previous string is also a complete word.
-          // is this a continuation of a current string? 
-            // 1 > paths to node 
-            // either end of a userString connected to currentNode
-            // if multiple strings qualify to continue, pick one most likely to be word NOTE: UNSURE ON THIS EDGE CASE
+        
+        // new userString
+          if(currentNode.paths.length === 0 || currentNode.paths.length > 1) { 
+            const currentString = this.addUserString(currentNode)
+            currentNode.connect(nextNode)
+          
+            currentString.push(nextNode)
+            this.currentStringNdx = this.userStrings.length -1
+            this.currentNode = nextNode
+
+          }
+          else{ // continue current string
+
+            // here currentNode should be part of only 1 user string
+            const currentString = this.findUserStrings([currentNode])[0]
+            this.currentStringNdx = this.userStrings.indexOf(currentString)
+            
+            if(!currentString){
+              throw new Error('User String Not Found')
+            }
+
+            currentNode.connect(nextNode)
+
+            currentString.push(nextNode)
+
+            this.currentNode = nextNode
+          }
+          return {next: nextNode, prev: null}
+
       }else {
         // path is closed unless we're removing nodes from a userString
-        // check if currentNode and nextNode are on same userString
-            // check if currentNode and nextNode are at either end of string
-              // horray! we can do an undo
-          // else : return null nothing to be done
-            
+
+        // check if currentNode and nextNode are connected and adjacent
+        const currentString = this.userStrings[this.currentStringNdx]
+        const adjacentNodesResult = twoNodesAreAdjacentOnSamePath(currentString,currentNode,nextNode)
+    
+        if(adjacentNodesResult.result === 'adjacent') {
+           currentNode.disconnect(nextNode)
+           currentString.splice(adjacentNodesResult.currentIndex,1) 
+           console.log('removed node from currentString')
+           //TODO: implement splitting userString if user severs list in half 
+           return {next: null, prev: nextNode}        
+        }
+
+          return {next: null, prev: null}
       }
     }
-
-
 
     removeLast(){
       if(this.visitedNodes.length <= 1){
@@ -156,16 +247,12 @@ const getAllNeighbors = (numRow, numCol)  => {
       const isStillThere = this.visitedNodes.find(node=> node === current)
       current.fixed = (isStillThere) ? true : false
 
-  
       return prev
 
     }
  
     restart(){
-  
-    while(this.visitedNodes.length > 1){
-      this.removeLast()
-    }
+
     this.resetGrid()
 
     }
@@ -173,6 +260,7 @@ const getAllNeighbors = (numRow, numCol)  => {
     resetGrid() {
       this.grid.forEach((row) => row.forEach(node => {
         node.fixed = false 
+        node.paths = []
       }))
     
       this.userStrings = []

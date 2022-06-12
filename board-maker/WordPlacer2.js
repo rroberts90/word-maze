@@ -206,10 +206,20 @@ const setupWords = (board, criteria) => {
     //tightfit(board)
 
     logWordPositions(board)
-
+    board.userStrings = []
+    resetPaths(board)
 }
 
-
+const resetPaths = (board) => {
+    for(let i = 0; i < board.grid.length; i++) {
+    for(let j = 0; j < board.grid[0].length; j++) {
+            const current = board.grid[i][j]
+            current.paths = []
+            current.useCount = 0
+            current.fixed = false
+    }
+}
+}
 export default setupWords
 
 // 

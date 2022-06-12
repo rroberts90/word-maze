@@ -48,7 +48,9 @@ const logPath = (path) => {
 }
 const tightfit = (board) => { 
         allPaths = []
+        
         console.log(`Open nodes at tightfitstart: ${board.countEmptyNodes()}`)
+       
         for(let i = 0; i < board.grid.length; i++) {
                 for(let j = 0; j < board.grid[0].length; j++) {
                         const current = board.grid[i][j]
